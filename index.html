@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cyberpunk TCG Deck Maker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="js/app.js"></script>
+</head>
+<body>
+<header class="top">
+    <div>
+        <h1>Deck<span>Maker</span></h1>
+        <p class="tagline">Générateur de decks optimisés pour Cyberpunk TCG</p>
+    </div>
+    <p id="db-status" class="status">Chargement des cartes NetDeck…</p>
+</header>
+
+<main class="layout">
+    <form id="generate-form" class="panel params">
+        <fieldset>
+            <legend>Couleurs des Légendes</legend>
+            <p class="help">Aucune sélection = toutes les couleurs. Jusqu'à 3 couleurs : le trio les couvrira toutes.</p>
+            <div id="colors" class="chips"></div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Type de deck</legend>
+            <div id="archetypes" class="archetypes"></div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Légendes imposées <span id="legend-count" class="count">0/3</span></legend>
+            <p class="help">Optionnel. Verrouille 1 à 3 Légendes, sinon l'IA choisit parmi les meilleurs trios.</p>
+            <div id="legend-picker" class="chips legend-picker"></div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Meilleurs trios calculés</legend>
+            <div id="trio-preview"><p class="muted">…</p></div>
+        </fieldset>
+
+        <fieldset class="row-2">
+            <label>Taille du main deck <output id="deck-size-value">40</output>
+                <input id="deck-size" type="range" min="40" max="50" value="40">
+            </label>
+            <label>Créativité <output id="temperature-value">0.4</output>
+                <input id="temperature" type="range" min="0" max="1.2" step="0.1" value="0.4">
+            </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Souhaits particuliers</legend>
+            <p class="help">Toujours transmis à l'agent. Pour le reste, discute avec lui à droite.</p>
+            <textarea id="notes" rows="2" placeholder="Ex : beaucoup de Blockers, jouer 3 Mantis Blades, éviter les Programs…"></textarea>
+        </fieldset>
+
+        <fieldset>
+            <legend>Modèle IA</legend>
+            <div class="model-row">
+                <select id="model"><option value="">— configure l'API —</option></select>
+                <button type="button" id="refresh-models" class="ghost" title="Recharger la liste">↻</button>
+            </div>
+        </fieldset>
+
+        <details id="api-settings" class="api">
+            <summary>Réglages API Infomaniak</summary>
+            <p id="api-env-note" class="help" hidden>Token et Product ID chargés depuis le fichier <code>.env</code>.</p>
+            <label id="token-field">Token API
+                <input id="token" type="password" autocomplete="off" placeholder="Laisse vide si défini dans .env">
+            </label>
+            <label id="product-field">Product ID AI Tools
+                <span class="model-row">
+                    <input id="product-id" inputmode="numeric" placeholder="ex. 105000">
+                    <button type="button" id="detect-product" class="ghost">Détecter</button>
+                </span>
+            </label>
+            <label>URL du proxy
+                <input id="proxy" placeholder="proxy.php">
+            </label>
+            <p class="help">Stocké uniquement dans ce navigateur. Le proxy PHP est nécessaire car l'API Infomaniak bloque les appels directs depuis une page web.</p>
+        </details>
+        <p id="api-status" class="status small"></p>
+
+        <button id="generate" type="submit" class="primary" disabled>Générer le deck</button>
+    </form>
+
+    <section class="panel output">
+        <div id="empty" class="empty">
+            <p>Choisis tes paramètres, discute avec l'agent, puis génère le deck.</p>
+            <p class="muted">Le site calcule la légalité (RAM, copies, taille) et classe les trios de Légendes et les cartes par synergie. L'agent compose le deck, puis le résultat est revérifié et corrigé si besoin. Tu peux ensuite lui demander des modifications.</p>
+        </div>
+
+        <article id="result" hidden>
+            <header class="deck-head">
+                <div>
+                    <h2 id="deck-name"></h2>
+                    <p id="deck-sub" class="muted"></p>
+                </div>
+                <div class="actions">
+                    <button type="button" id="copy" class="primary">Copier en .txt</button>
+                    <button type="button" id="download" class="ghost">Télécharger</button>
+                </div>
+            </header>
+            <div id="legends" class="legends"></div>
+            <div id="stats" class="stats"></div>
+            <div id="fixes" class="fixes" hidden></div>
+            <div class="result-cols">
+                <div id="decklist" class="decklist"></div>
+                <div id="analysis" class="analysis"></div>
+            </div>
+            <details class="prompt">
+                <summary>Voir le contexte envoyé à l'agent</summary>
+                <pre id="prompt"></pre>
+            </details>
+        </article>
+    </section>
+
+    <aside class="panel chat" aria-label="Conversation avec l'agent">
+        <header class="chat-head">
+            <h2>Agent</h2>
+            <button type="button" id="chat-reset" class="ghost small">Nouvelle conversation</button>
+        </header>
+        <div class="chat-scroll">
+            <div id="chat-welcome" class="chat-welcome">
+                <p>Salut ! Je connais les règles et toutes les cartes jouables avec tes paramètres. On peut débattre de la stratégie avant de générer, et je modifie le deck quand tu veux.</p>
+                <div id="chat-suggestions" class="suggestions">
+                    <button type="button" class="chip" data-suggest>Quel trio de Légendes me conseilles-tu, et pourquoi ?</button>
+                    <button type="button" class="chip" data-suggest>Quelles cartes sont indispensables pour ce style de deck ?</button>
+                    <button type="button" class="chip" data-suggest>Combien de cartes vendables faut-il viser ?</button>
+                </div>
+            </div>
+            <div id="chat-log" class="chat-log" aria-live="polite"></div>
+            <div id="busy" class="busy" hidden><span class="spinner"></span><span id="busy-text"></span></div>
+        </div>
+        <form id="chat-form" class="chat-form">
+            <textarea id="chat-input" rows="2" placeholder="Ex : je veux un rush qui vole des Gigs dès le tour 2… (Entrée pour envoyer)"></textarea>
+            <button type="submit" id="chat-send" class="primary">Envoyer</button>
+        </form>
+    </aside>
+</main>
+<img id="card-preview" class="card-preview" alt="" hidden>
+</body>
+</html>

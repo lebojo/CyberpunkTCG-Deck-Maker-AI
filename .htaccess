@@ -1,0 +1,4 @@
+# Empêche de télécharger le .env (et autres fichiers cachés) une fois hébergé
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
