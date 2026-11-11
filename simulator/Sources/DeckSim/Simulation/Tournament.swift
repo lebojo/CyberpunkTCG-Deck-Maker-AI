@@ -1,0 +1,114 @@
+import Foundation
+
+struct TournamentStats: Sendable {
+    var tournaments = 0
+    var titles: [Int]
+    var finals: [Int]
+    var matchesPlayed: [Int]
+    var matchesWon: [Int]
+    var gamesPlayed: [Int]
+    var gamesWon: [Int]
+
+    init(deckCount: Int) {
+        titles = Array(repeating: 0, count: deckCount)
+        finals = Array(repeating: 0, count: deckCount)
+        matchesPlayed = Array(repeating: 0, count: deckCount)
+        matchesWon = Array(repeating: 0, count: deckCount)
+        gamesPlayed = Array(repeating: 0, count: deckCount)
+        gamesWon = Array(repeating: 0, count: deckCount)
+    }
+
+    mutating func merge(_ other: TournamentStats) {
+        tournaments += other.tournaments
+        for index in titles.indices {
+            titles[index] += other.titles[index]
+            finals[index] += other.finals[index]
+            matchesPlayed[index] += other.matchesPlayed[index]
+            matchesWon[index] += other.matchesWon[index]
+            gamesPlayed[index] += other.gamesPlayed[index]
+            gamesWon[index] += other.gamesWon[index]
+        }
+    }
+}
+
+enum Tournament {
+    static func run(catalog: CardCatalog, decks: [DeckList], count: Int, bestOf: Int, seed: UInt64, workers: Int, search: Bool) async -> TournamentStats {
+        let chunk = max(1, count / (workers * 4))
+        return await withTaskGroup(of: TournamentStats.self) { group in
+            var start = 0
+            while start < count {
+                let range = start..<min(count, start + chunk)
+                group.addTask {
+                    var stats = TournamentStats(deckCount: decks.count)
+                    for index in range {
+                        playOne(catalog: catalog, decks: decks, bestOf: bestOf, search: search, seed: seed &+ UInt64(index) &* 0xD1B5_4A32_D192_ED03, into: &stats)
+                    }
+                    return stats
+                }
+                start += chunk
+            }
+            var total = TournamentStats(deckCount: decks.count)
+            for await part in group { total.merge(part) }
+            return total
+        }
+    }
+
+    static func playOne(catalog: CardCatalog, decks: [DeckList], bestOf: Int, search: Bool, seed: UInt64, into stats: inout TournamentStats) {
+        var rng = SplitMix64(seed: seed)
+        var remaining = Array(decks.indices)
+        remaining.shuffle(using: &rng)
+        stats.tournaments += 1
+        while remaining.count > 1 {
+            var next: [Int] = []
+            var index = 0
+            while index < remaining.count {
+                guard index + 1 < remaining.count else {
+                    next.append(remaining[index])
+                    break
+                }
+                let a = remaining[index]
+                let b = remaining[index + 1]
+                let isFinal = remaining.count == 2
+                let winner = playMatch(catalog: catalog, decks: decks, a: a, b: b, bestOf: bestOf, search: search, rng: &rng, stats: &stats)
+                stats.matchesPlayed[a] += 1
+                stats.matchesPlayed[b] += 1
+                stats.matchesWon[winner] += 1
+                if isFinal {
+                    stats.finals[a] += 1
+                    stats.finals[b] += 1
+                    stats.titles[winner] += 1
+                }
+                next.append(winner)
+                index += 2
+            }
+            remaining = next
+        }
+    }
+
+    static func playMatch(catalog: CardCatalog, decks: [DeckList], a: Int, b: Int, bestOf: Int, search: Bool, rng: inout SplitMix64, stats: inout TournamentStats) -> Int {
+        let target = bestOf / 2 + 1
+        var winsA = 0
+        var winsB = 0
+        var played = 0
+        while winsA < target && winsB < target {
+            played += 1
+            let gameSeed = rng.next()
+            let first = Int.random(in: 0...1, using: &rng)
+            let result = Simulator.winner(catalog: catalog, decks: [decks[a], decks[b]], seed: gameSeed, firstPlayer: first, search: [search, search])
+            stats.gamesPlayed[a] += 1
+            stats.gamesPlayed[b] += 1
+            switch result {
+            case 0:
+                winsA += 1
+                stats.gamesWon[a] += 1
+            case 1:
+                winsB += 1
+                stats.gamesWon[b] += 1
+            default:
+                break
+            }
+            if played > 30 { return Bool.random(using: &rng) ? a : b }
+        }
+        return winsA > winsB ? a : b
+    }
+}
