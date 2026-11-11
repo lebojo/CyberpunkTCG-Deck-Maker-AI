@@ -299,7 +299,13 @@ async function ask(autoMessage) {
     const { system } = buildContext();
     const messages = toApiMessages(system, state.history.filter((m) => m.role !== 'error'));
     const temperature = Number($('#temperature').value);
-    const content = stripThinking(await chat(settings, messages, { temperature }));
+    const content = stripThinking(await chat(settings, messages, {
+        temperature,
+        onProgress: ({ reasoningChars, contentChars }) => {
+            busyDetail = contentChars ? `rédaction (${contentChars} car.)` : reasoningChars ? `réflexion (${Math.round(reasoningChars / 4)} tokens)` : '';
+        },
+    }));
+    busyDetail = '';
     state.history.push({ role: 'assistant', content });
     state.lastSystem = system;
     renderChat();
@@ -494,6 +500,7 @@ function downloadDeck() {
 
 let busyTimer = null;
 let busyStart = 0;
+let busyDetail = '';
 
 // Les modèles qui raisonnent (Kimi, Qwen) peuvent mettre plusieurs minutes : on affiche le temps écoulé.
 function setBusy(busy, message = '') {
@@ -508,7 +515,7 @@ function setBusy(busy, message = '') {
     }
     if (!busyStart) busyStart = Date.now();
     const tick = () => {
-        $('#busy-text').textContent = `${message} ${Math.round((Date.now() - busyStart) / 1000)} s`;
+        $('#busy-text').textContent = `${message} ${Math.round((Date.now() - busyStart) / 1000)} s${busyDetail ? ` · ${busyDetail}` : ''}`;
     };
     tick();
     scrollChat();

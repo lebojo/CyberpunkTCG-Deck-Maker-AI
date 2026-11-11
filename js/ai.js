@@ -99,18 +99,50 @@ export function toApiMessages(system, history) {
 
 const oneLine = (text) => text.replace(/\s*\n\s*/g, ' / ');
 
-export async function chat(settings, messages, { temperature }) {
+export async function chat(settings, messages, { temperature, onProgress }) {
     const res = await fetch(proxyUrl(settings, 'chat'), {
         method: 'POST',
         headers: headers(settings),
         // Large marge : les modèles qui raisonnent consomment des tokens avant d'écrire la réponse.
-        body: JSON.stringify({ model: settings.model, messages, temperature, max_tokens: 32000 }),
+        body: JSON.stringify({ model: settings.model, messages, temperature, max_tokens: 32000, stream: true }),
     });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok || data.error) throw new Error(errorText(data) || `Infomaniak a répondu HTTP ${res.status}`);
-    const choice = data.choices?.[0];
-    const content = choice?.message?.content;
-    if (!content && choice?.finish_reason === 'length') throw new Error('Le modèle a épuisé ses tokens en réfléchissant, sans écrire de réponse. Réessaie ou change de modèle.');
+    if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(errorText(data) || `Infomaniak a répondu HTTP ${res.status}`);
+    }
+
+    // Flux SSE : on cumule le texte, on compte les tokens de réflexion pour montrer que ça avance.
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let content = '';
+    let reasoningChars = 0;
+    let finish = '';
+    const handle = (line) => {
+        if (!line.startsWith('data:')) return;
+        const payload = line.slice(5).trim();
+        if (!payload || payload === '[DONE]') return;
+        let event;
+        try { event = JSON.parse(payload); } catch { return; }
+        if (event.error) throw new Error(errorText(event) || 'Erreur pendant la génération.');
+        const choice = event.choices?.[0];
+        const delta = choice?.delta || {};
+        if (delta.content) content += delta.content;
+        reasoningChars += (delta.reasoning || delta.reasoning_content || '').length;
+        if (choice?.finish_reason) finish = choice.finish_reason;
+        onProgress?.({ reasoningChars, contentChars: content.length });
+    };
+    for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+        lines.forEach(handle);
+    }
+    handle(buffer);
+
+    if (!content && finish === 'length') throw new Error('Le modèle a épuisé ses tokens en réfléchissant, sans écrire de réponse. Réessaie ou change de modèle.');
     if (!content) throw new Error('Réponse vide du modèle.');
     return content;
 }
