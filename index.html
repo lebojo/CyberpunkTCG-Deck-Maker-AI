@@ -34,13 +34,8 @@
 
         <fieldset>
             <legend>Légendes imposées <span id="legend-count" class="count">0/3</span></legend>
-            <p class="help">Optionnel. Verrouille 1 à 3 Légendes, sinon l'IA choisit parmi les meilleurs trios.</p>
+            <p class="help">Optionnel. Verrouille 1 à 3 Légendes, sinon l'IA choisit librement le trio le plus synergique.</p>
             <div id="legend-picker" class="chips legend-picker"></div>
-        </fieldset>
-
-        <fieldset>
-            <legend>Meilleurs trios calculés</legend>
-            <div id="trio-preview"><p class="muted">…</p></div>
         </fieldset>
 
         <fieldset class="row-2">
@@ -91,7 +86,7 @@
     <section class="panel output">
         <div id="empty" class="empty">
             <p>Choisis tes paramètres, discute avec l'agent, puis génère le deck.</p>
-            <p class="muted">Le site calcule la légalité (RAM, copies, taille) et classe les trios de Légendes et les cartes par synergie. L'agent compose le deck, puis le résultat est revérifié et corrigé si besoin. Tu peux ensuite lui demander des modifications.</p>
+            <p class="muted">Le site ne fait que vérifier la légalité (RAM, copies, taille) : l'agent voit toutes les cartes et les règles, choisit lui-même le trio de Légendes et compose le deck, puis le résultat est revérifié et corrigé si besoin. Tu peux ensuite lui demander des modifications.</p>
         </div>
 
         <article id="result" hidden>

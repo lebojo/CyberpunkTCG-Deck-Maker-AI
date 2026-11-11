@@ -1,14 +1,13 @@
 import { fetchAllCards } from './cards.js';
 import { ARCHETYPES } from './rules.js';
 import {
-    COLORS, rankLegendTrios, pickDiverseTrios, scoreCard, isLegalFor, validateDeck, repairDeck, deckStats, deckToText,
+    COLORS, isLegalFor, validateDeck, repairDeck, deckStats, deckToText,
 } from './engine.js';
 import {
     buildSystemPrompt, toApiMessages, extractDeck, stripThinking, chat, listModels, listProducts, loadServerConfig,
     GENERATE_REQUEST, MISSING_DECK_REQUEST, repairRequest,
 } from './ai.js';
 
-const TRIOS_FOR_AI = 5;
 const MAX_AUTO_RETRIES = 2;
 const SETTINGS_KEY = 'cptcg-deckmaker-settings';
 
@@ -18,7 +17,7 @@ const state = {
     byKey: new Map(),
     allTags: [],
     colors: new Set(),
-    archetype: 'midrange',
+    archetype: 'free',
     locked: [],
     deck: null,
     // Historique de la conversation avec l'agent : { role, content, auto? }
@@ -41,7 +40,7 @@ async function init() {
         const legends = state.cards.filter((c) => c.type === 'Legend').length;
         setDbStatus(`${state.cards.length} cartes chargées · ${legends} Légendes`, 'ok');
         renderLegendPicker();
-        renderTrioPreview();
+        $('#generate').disabled = false;
     } catch (err) {
         setDbStatus(`Impossible de charger les cartes : ${err.message}`, 'error');
     }
@@ -79,7 +78,6 @@ function renderColors() {
         btn.setAttribute('aria-pressed', state.colors.has(color));
         state.locked = state.locked.filter((k) => !state.colors.size || state.colors.has(state.byKey.get(k).color));
         renderLegendPicker();
-        renderTrioPreview();
     });
 }
 
@@ -93,7 +91,6 @@ function renderArchetypes() {
         </label>`).join('');
     wrap.addEventListener('change', (e) => {
         state.archetype = e.target.value;
-        renderTrioPreview();
     });
 }
 
@@ -123,33 +120,26 @@ $('#legend-picker').addEventListener('click', (e) => {
         state.locked.push(key);
     }
     renderLegendPicker();
-    renderTrioPreview();
 });
 
-function currentTrios() {
-    return rankLegendTrios(state.cards, {
-        colors: [...state.colors],
-        locked: state.locked,
-        archetype: ARCHETYPES[state.archetype],
-        allTags: state.allTags,
-    });
+function availableLegends() {
+    return state.cards
+        .filter((c) => c.type === 'Legend' && c.legal && c.ram && c.text)
+        .filter((c) => !state.colors.size || state.colors.has(c.color))
+        .sort((a, b) => a.color.localeCompare(b.color) || a.fullName.localeCompare(b.fullName));
 }
 
-function renderTrioPreview() {
-    if (!state.cards.length) return;
-    const trios = currentTrios();
-    const box = $('#trio-preview');
-    if (!trios.length) {
-        box.innerHTML = '<p class="muted">Aucun trio possible avec ces contraintes. Ajoute une couleur ou retire une Légende verrouillée.</p>';
-        $('#generate').disabled = true;
-        return;
+// RAM maximale atteignable par couleur avec les Légendes autorisées (et celles imposées).
+function maxLimits(legends) {
+    const locked = state.locked.map((k) => state.byKey.get(k));
+    const free = 3 - locked.length;
+    const limits = Object.fromEntries(COLORS.map((c) => [c, 0]));
+    for (const l of locked) limits[l.color] += l.ram;
+    for (const color of new Set(legends.map((l) => l.color))) {
+        const ram = Math.max(...legends.filter((l) => l.color === color).map((l) => l.ram));
+        limits[color] += ram * free;
     }
-    $('#generate').disabled = false;
-    box.innerHTML = `<ol class="trios">${pickDiverseTrios(trios, TRIOS_FOR_AI).map((t) => `
-        <li>
-            <span class="trio-legends">${t.legends.map((l) => `<span class="trio-legend"><span class="dot dot-${l.color.toLowerCase()}"></span>${escapeHtml(l.fullName)}</span>`).join('<span class="sep">+</span>')}</span>
-            <span class="trio-meta">${t.legalCount} cartes jouables · ${t.sellable} vendables · score ${t.score}</span>
-        </li>`).join('')}</ol>`;
+    return limits;
 }
 
 function bindForm() {
@@ -234,19 +224,15 @@ async function refreshModels() {
 // Contexte rafraîchi à chaque message : paramètres actuels + toutes les cartes jouables + deck validé.
 function buildContext() {
     const archetype = ARCHETYPES[state.archetype];
-    const ranked = currentTrios();
-    const trios = pickDiverseTrios(ranked, TRIOS_FOR_AI);
-    const maxLimits = Object.fromEntries(COLORS.map((c) => [c, Math.max(0, ...ranked.map((t) => t.limits[c]))]));
-    const legends = [...new Map(ranked.flatMap((t) => t.legends).map((l) => [l.key, l])).values()]
-        .sort((a, b) => a.color.localeCompare(b.color) || a.fullName.localeCompare(b.fullName));
-    const refs = mergeRefs(trios);
+    const legends = availableLegends();
+    const limits = maxLimits(legends);
+    const typeOrder = { Unit: 0, Gear: 1, Program: 2 };
     const pool = state.cards
-        .filter((c) => isLegalFor(c, maxLimits))
-        .map((card) => ({ card, ...scoreCard(card, archetype, refs) }))
-        .sort((a, b) => b.score - a.score);
+        .filter((c) => isLegalFor(c, limits))
+        .sort((a, b) => a.color.localeCompare(b.color) || (typeOrder[a.type] ?? 3) - (typeOrder[b.type] ?? 3)
+            || (a.cost ?? 0) - (b.cost ?? 0) || a.fullName.localeCompare(b.fullName));
     const system = buildSystemPrompt({
         archetype,
-        trios,
         legends,
         pool,
         options: {
@@ -257,7 +243,16 @@ function buildContext() {
         },
         currentDeck: state.deck ? describeCurrentDeck() : null,
     });
-    return { archetype, trios, pool, system };
+    return { archetype, legends, pool, system };
+}
+
+function fallbackLegends() {
+    const picked = state.locked.map((k) => state.byKey.get(k));
+    for (const l of availableLegends()) {
+        if (picked.length >= 3) break;
+        if (!picked.some((p) => p.baseName === l.baseName)) picked.push(l);
+    }
+    return picked;
 }
 
 function describeCurrentDeck() {
@@ -268,12 +263,6 @@ function describeCurrentDeck() {
         main: deck.main.map((e) => ({ qty: e.qty, card: state.byKey.get(e.key) })),
         stats: deckStats(deck, state.byKey),
     };
-}
-
-function mergeRefs(trios) {
-    const merged = { tags: new Set(), types: new Set(), colorTypes: new Set(), mechanics: new Set() };
-    for (const t of trios) for (const k of Object.keys(merged)) t.refs[k].forEach((v) => merged[k].add(v));
-    return merged;
 }
 
 async function sendToAgent(text, { expectDeck = false } = {}) {
@@ -331,8 +320,8 @@ async function acceptDeck(deck) {
     let fixes = [];
     const roles = new Map(deck.main.map((e) => [e.key, e.role]));
     if (errors.length) {
-        const { trios, pool } = buildContext();
-        ({ deck, fixes } = repairDeck(deck, state.byKey, pool, trios[0]));
+        const { pool } = buildContext();
+        ({ deck, fixes } = repairDeck(deck, state.byKey, pool, fallbackLegends(), Number($('#deck-size').value)));
     }
     deck.main = deck.main.map((e) => ({ ...e, role: roles.get(e.key) || '' }));
     state.deck = { ...deck, archetype: ARCHETYPES[state.archetype].label, model: settings.model, fixes };

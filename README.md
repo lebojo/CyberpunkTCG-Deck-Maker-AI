@@ -9,7 +9,7 @@ Un seul agent (le modèle choisi dans le sélecteur) pour toute la session : on 
 - `index.html`, `style.css` : l'interface
 - `js/cards.js` : chargement des cartes depuis l'API NetDeck
 - `js/rules.js` : synthèse des règles pour le deckbuilding + définition des archétypes
-- `js/engine.js` : légalité (RAM, copies, 40–50 cartes), score des cartes et des trios de Légendes, validation et réparation, export .txt
+- `js/engine.js` : légalité (RAM, copies, 40–50 cartes), validation et réparation, export .txt
 - `js/ai.js` : prompt système de l'agent (règles, cartes, deck actuel), appels Infomaniak, extraction du bloc deck
 - `proxy.php` : relais vers l'API Infomaniak (elle bloque les appels directs depuis le navigateur, CORS)
 

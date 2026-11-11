@@ -85,6 +85,42 @@ if ($method === 'POST') {
     curl_setopt($ch, CURLOPT_POSTFIELDS, file_get_contents('php://input'));
 }
 
+if ($action === 'chat') {
+    // Keepalive : les espaces avant un JSON restent valides. On les envoie pendant que le modèle réfléchit
+    // pour qu'aucun serveur ou intermédiaire ne coupe la connexion inactive. Le statut HTTP part donc tout de suite
+    // (200) : une erreur d'Infomaniak est renvoyée dans le corps sous la clé "error", lue par la page.
+    header('X-Accel-Buffering: no');
+    while (ob_get_level() > 0) ob_end_flush();
+    ob_implicit_flush(true);
+    echo ' ';
+    flush();
+
+    $mh = curl_multi_init();
+    curl_multi_add_handle($mh, $ch);
+    $lastBeat = time();
+    do {
+        $status = curl_multi_exec($mh, $running);
+        if ($running) curl_multi_select($mh, 1.0);
+        if (time() - $lastBeat >= 10) {
+            echo ' ';
+            flush();
+            $lastBeat = time();
+            if (connection_aborted()) exit;
+        }
+    } while ($running && $status === CURLM_OK);
+
+    $body = curl_multi_getcontent($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    if ($status !== CURLM_OK || $code === 0) {
+        echo json_encode(['error' => ['message' => 'Erreur réseau vers Infomaniak : ' . curl_error($ch)]]);
+    } elseif ($code >= 400 && !str_contains((string) $body, '"error"')) {
+        echo json_encode(['error' => ['message' => "Infomaniak a répondu HTTP $code"]]);
+    } else {
+        echo $body;
+    }
+    exit;
+}
+
 $body = curl_exec($ch);
 if ($body === false) {
     fail(502, 'Erreur réseau vers Infomaniak : ' . curl_error($ch));

@@ -39,43 +39,43 @@ KEYWORDS
 - {Go Solo} (Legends): pay the Legend's cost to put it on the field as a ready Unit that can attack this turn; if it leaves the field it is removed from the game.
 - {Quick}: can also be used/played as a reaction during the rival's attack.
 
-GOOD DECK PRINCIPLES FOR THIS GAME
-- Mana curve: most cards at cost 1–4; only a few 5+ finishers unless the deck ramps. Turn N you usually have about (N-1 Eddies + 3 Legends) €$.
-- Balance Units (pressure, stealing, blocking) vs sellable Gears/Programs (economy + effects). Typical: 18–24 Units, 16–22 Gears/Programs.
-- Maximize synergies: Legends that reference TAGS (ARASAKA, BRAINDANCE, ROCKER, CORPO, GANGER...), card types (Gear, Program, Blue Unit...) or mechanics (Gigs 8+, value-pairs, min/max Gigs, Blocker) should be backed by many cards that feed them.
-- Prefer 3 copies of key cards for consistency; 40 cards maximizes consistency (only go above 40 with a reason).
-- Have answers: removal (defeat / -power / spend a rival Unit), Blockers or Gig protection, and card advantage.
+STRATEGIC FACTS (no prescribed template: you decide the deck's shape)
+- The game lasts about 7 turns each before Overtime, so the deck's plan must come together inside that window: count how many turns your engine/combo needs, and what it does on turns 1-3 while it assembles.
+- Turn N you have about (N-1 Eddies + 3 Legends) €$ if you sold a card every turn. Every card sold is a card not played: sellable cards are both fuel and effects.
+- A Legend is both a resource (€$), a late Unit ({Go Solo}) and a source of static/{Spend} effects. The 3 Legends should reinforce each other AND the main deck's cards: judge them by the plan they enable, not by how many playable cards their colors offer.
+- Max copies is 3; a 40-card deck maximizes consistency, going up to 50 needs a reason. Copy counts should reflect each card's role in the plan.
 `.trim();
 
+// Simples orientations transmises à l'agent : aucune pondération, aucun score.
 export const ARCHETYPES = {
+    free: {
+        label: 'Libre',
+        hint: 'Le meilleur deck possible',
+        brief: 'FREE: no imposed style. Find the strongest, most coherent strategy available in the allowed colors, whatever it is.',
+    },
     aggro: {
         label: 'Aggro',
         hint: 'Vole des Gigs vite',
-        brief: 'AGGRO: steal Gigs as early and as often as possible. Low curve (mostly cost 1–4), efficient power-per-cost Units, {Adrenaline}/{Go Solo}, +power effects and steal-boosting effects. Few expensive cards. Win before turn 7 or right at Overtime.',
-        weights: { efficiency: 3, haste: 3, steal: 2.5, pump: 2, removal: 1, draw: 0.8, blocker: 0.3, gig: 1, unit: 1.5, cheap: 2.5, expensive: -2.5 },
+        brief: 'AGGRO: win by stealing Gigs fast, before the rival stabilizes.',
     },
     midrange: {
         label: 'Midrange',
         hint: 'Tempo + valeur',
-        brief: 'MIDRANGE: efficient Units at every point of the curve, flexible removal and card advantage. Trade well in fights, then take over with bigger threats and steal at the right moment.',
-        weights: { efficiency: 2.5, haste: 1, steal: 1.5, pump: 1, removal: 2, draw: 1.5, blocker: 1, gig: 1, unit: 0.8, cheap: 1, expensive: 0 },
+        brief: 'MIDRANGE: trade efficiently, then take over with value and well-timed steals.',
     },
     control: {
         label: 'Contrôle',
         hint: 'Bloque, retire, gagne tard',
-        brief: 'CONTROL: deny the rival\'s steals with Blockers, removal and Gig protection, accumulate card advantage, then win late (Overtime or big finishers / swaps). More sellable cards for a stronger economy.',
-        weights: { efficiency: 1, haste: 0, steal: 0.5, pump: 0.3, removal: 3, draw: 2.5, blocker: 2.5, gig: 1.5, unit: 0, cheap: 0, expensive: 0.8 },
+        brief: 'CONTROL: deny the rival\'s steals, grind them out, win late.',
     },
     gigs: {
         label: 'Manipulation de Gigs',
         hint: 'Adjust, swap, Street Cred',
-        brief: 'GIG MANIPULATION: build around adjusting, setting, swapping and increasing Gigs (value-pairs, min/max Gigs, 8+ value Gigs, Street Cred thresholds). Pick the Legends and cards whose conditions feed each other.',
-        weights: { efficiency: 1, haste: 0.3, steal: 1.5, pump: 0.5, removal: 1, draw: 1.5, blocker: 1, gig: 3.5, unit: 0.3, cheap: 0.5, expensive: 0 },
+        brief: 'GIG MANIPULATION: the plan revolves around adjusting, setting, swapping and increasing Gigs.',
     },
     synergy: {
         label: 'Synergie de tags',
         hint: 'Tribal / Gear / Program',
-        brief: 'SYNERGY: go all-in on the strongest shared theme of the Legends (a tag like ARASAKA/BRAINDANCE/ROCKER, or Gears/Programs). Include as many enablers and payoffs of that theme as possible.',
-        weights: { efficiency: 1.5, haste: 0.5, steal: 1, pump: 1, removal: 1, draw: 1.5, blocker: 0.5, gig: 1, unit: 0.5, cheap: 0.5, expensive: 0, legendSynergy: 2.5 },
+        brief: 'SYNERGY: go all-in on one shared theme (a tag, a card type or a mechanic) and its enablers/payoffs.',
     },
 };
