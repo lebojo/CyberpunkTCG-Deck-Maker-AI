@@ -100,7 +100,7 @@ public enum Simulator {
         return nil
     }
 
-    public static func duel(catalog: CardCatalog, a: DeckList, b: DeckList, games: Int, seed: UInt64, workers: Int, search: [Bool], config: SearchConfig = SearchConfig()) async -> DuelStats {
+    public static func duel(catalog: CardCatalog, a: DeckList, b: DeckList, games: Int, seed: UInt64, workers: Int, search: [Bool], config: SearchConfig = SearchConfig(), progress: DuelProgress? = nil) async -> DuelStats {
         let chunk = max(1, games / (workers * 4))
         return await withTaskGroup(of: DuelStats.self) { group in
             var start = 0
@@ -109,9 +109,17 @@ public enum Simulator {
                 group.addTask {
                     let local = catalog.isolatedCopy()
                     var stats = DuelStats()
+                    var batch = GameBatch()
                     for index in range {
-                        stats.add(playOne(catalog: local, decks: [a, b], index: index, seed: seed, search: search, config: config).summary)
+                        let summary = playOne(catalog: local, decks: [a, b], index: index, seed: seed, search: search, config: config).summary
+                        stats.add(summary)
+                        batch.add(winner: summary.winner)
+                        if batch.games >= 16 {
+                            progress?.publish(batch)
+                            batch = GameBatch()
+                        }
                     }
+                    progress?.publish(batch)
                     return stats
                 }
                 start += chunk

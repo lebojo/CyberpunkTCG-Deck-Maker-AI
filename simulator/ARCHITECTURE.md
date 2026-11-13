@@ -35,7 +35,7 @@ simulator/
         Search/                 recherche, déterminisation, évaluation
         Heuristics/             Strategy gloutonne, Valuation, Mulligan, Bluff, Defense
       Simulation/               Simulator, Tournament, ProgressTracker
-      Reporting/                Report (texte), MarkdownReport, LiveDashboard
+      Reporting/                Report (texte), MarkdownReport, LiveDashboard (rendu pur), LiveDisplay (boucle et terminal)
     DeckSim/                    exécutable CLI (produit nommé DeckSim)
       main.swift
       CLI/                      Options, parsing, usage
@@ -129,7 +129,8 @@ Les 5 decks de référence sont dans `Regression/decks/`. Le résultat de l'anci
 - **`EffectContext`** contient le `Game` (échangé avec un `Game` vide le temps de l'appel, sans copie des tableaux) et `EffectQuery` une copie en lecture ; `GameReading` regroupe les lectures communes, `GameActions` les actions.
 - **Performances** : chaque tâche de simulation travaille sur sa propre copie du catalogue (`CardCatalog.isolatedCopy()`), pour éviter que les compteurs de références partagés entre cœurs ne ralentissent le calcul. Les profils statiques des cartes (mots-clés, événements écoutés, portées, capacités) sont calculés une fois par catalogue.
 - **`KeywordCard`** (dossier `Generic/`) marque les cartes dont le texte n'est que des mots-clés ; `VanillaCard` reste la valeur par défaut des cartes non enregistrées.
-- **Mulligan, Defense** sont dans `AI/Heuristics/` (`Mulligan.swift`, `Defense.swift`, `QuickResponses.swift`) ; `Bluff`, `ProgressTracker`, `LiveDashboard` ne sont pas encore écrits (`--bluff` et `--no-live` sont acceptés et sans effet).
+- **Mulligan, Defense** sont dans `AI/Heuristics/` (`Mulligan.swift`, `Defense.swift`, `QuickResponses.swift`) ; `Bluff` n'est pas encore écrit (`--bluff` est accepté et sans effet).
+- **Affichage en direct** : `ProgressTracker` est une classe `Sendable` (verrou `OSAllocatedUnfairLock`) ; `LiveDashboard` (rendu pur) et `LiveDisplay` (boucle, TTY, signaux) sont deux fichiers. `Simulator.duel` et `Tournament.run` reçoivent un paramètre optionnel `progress`. En matrice, « matchs » = duels. Le gestionnaire de SIGINT/SIGTERM rétablit le curseur et quitte avec 128+signal.
 - **Recherche** : les capacités activées sont proposées après les cartes jouables (celles de type `.mainAction`) ou après les attaques ; les identifiants de carte suivent l'ordre de `cards.json`. Les résultats restent statistiquement identiques à l'ancien moteur (qui était déjà non déterministe en mode recherche) et la recherche est environ deux fois plus rapide.
 - **Divergences de règles conservées** pour une non-régression exacte : voir la section « Divergences connues » du README.
 
