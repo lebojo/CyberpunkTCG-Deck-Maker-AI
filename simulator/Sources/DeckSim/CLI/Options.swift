@@ -17,9 +17,41 @@ struct Options {
     var workers = ProcessInfo.processInfo.activeProcessorCount
     var coverage = false
     var live = true
-    var bluff = true
+    var bluff = SearchConfig.defaultBluff
+    var opponentBudget = SearchConfig().opponentBudget
+    var oldSeats = OldSeats.none
+    var bluffSeats = BluffSeats.both
 
-    var searchConfig: SearchConfig { SearchConfig(samples: samples, depth: depth, shortlist: shortlist) }
+    var searchConfig: SearchConfig {
+        SearchConfig(samples: samples, depth: depth, shortlist: shortlist, opponentBudget: opponentBudget, bluff: bluff)
+    }
+
+    var policy: Policy { Policy(search: search, config: searchConfig) }
+
+    var seatPolicies: [Policy] {
+        var seats = versus ? [policy, Policy(search: false, config: searchConfig)] : [policy, policy]
+        if bluffSeats == .firstOnly {
+            seats[0].config.bluff = true
+            seats[1].config.bluff = false
+        }
+        switch oldSeats {
+        case .none: break
+        case .second: seats[1] = seats[1].legacy
+        case .both: seats = seats.map(\.legacy)
+        }
+        return seats
+    }
+}
+
+enum OldSeats {
+    case none
+    case second
+    case both
+}
+
+enum BluffSeats {
+    case both
+    case firstOnly
 }
 
 enum CLIError: Error, CustomStringConvertible {
@@ -44,7 +76,10 @@ enum OptionParser {
       --trace  : affiche le déroulé d'une seule partie
       --coverage : liste les cartes qui ont un effet codé et celles qui restent à coder (aucun deck nécessaire)
       --no-live : désactive l'affichage en direct
-      --bluff on|off : active ou non le bluff de l'IA
+      --bluff on|off : active ou non le bluff de l'IA (finir son tour en gardant du mana et des Units prêtes)
+      --opponent-budget N : décisions cherchées par tour adverse simulé dans la recherche (0 = adversaire glouton, défaut 1)
+      --ai-old b|all : outil de dev, l'ancienne IA (avant bluff, défense et adversaire simulé) joue le 2e deck (b) ou les deux (all)
+      --bluff-ab : outil de dev, bluff activé pour le 1er deck seulement (test A/B)
     """
 
     static func parse(_ arguments: [String]) throws -> Options {
@@ -77,6 +112,13 @@ enum OptionParser {
             case "--bluff":
                 guard let value = iterator.next(), ["on", "off"].contains(value) else { throw CLIError.usage("--bluff attend on ou off") }
                 options.bluff = value == "on"
+            case "--opponent-budget":
+                guard let value = iterator.next(), let budget = Int(value), budget >= 0 else { throw CLIError.usage("--opponent-budget attend un entier positif ou nul") }
+                options.opponentBudget = budget
+            case "--ai-old":
+                guard let value = iterator.next(), ["b", "all"].contains(value) else { throw CLIError.usage("--ai-old attend b ou all") }
+                options.oldSeats = value == "b" ? .second : .both
+            case "--bluff-ab": options.bluffSeats = .firstOnly
             case "--cards":
                 throw CLIError.usage("--cards n'existe plus : la base de cartes est embarquée (lancer FetchCards pour la mettre à jour)")
             default:

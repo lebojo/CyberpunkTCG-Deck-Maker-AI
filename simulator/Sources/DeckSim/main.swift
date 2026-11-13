@@ -28,11 +28,10 @@ func run() async throws {
         print("Cartes sans effet implémenté (jouées comme des cartes sans texte) : " + missing.joined(separator: ", "))
     }
     guard decks.count >= 2 else { return }
-    let config = options.searchConfig
-    let both = options.versus ? [true, false] : [options.search, options.search]
+    let seats = options.seatPolicies
 
     if options.trace {
-        let result = Simulator.playOne(catalog: catalog, decks: Array(decks.prefix(2)), index: 0, seed: options.seed, search: both, config: config, tracing: true)
+        let result = Simulator.playOne(catalog: catalog, decks: Array(decks.prefix(2)), index: 0, seed: options.seed, policies: seats, tracing: true)
         print(result.trace.joined(separator: "\n"))
         print("\nRésultat : \(result.summary.winner.map { "victoire de \(decks[$0].name)" } ?? "égalité") en \(result.summary.turns) tours")
         return
@@ -40,18 +39,18 @@ func run() async throws {
 
     let start = Date()
     if options.tournaments > 0 {
-        let stats = await Tournament.run(catalog: catalog, decks: decks, count: options.tournaments, bestOf: options.bestOf, seed: options.seed, workers: options.workers, search: options.search, config: config)
+        let stats = await Tournament.run(catalog: catalog, decks: decks, count: options.tournaments, bestOf: options.bestOf, seed: options.seed, workers: options.workers, policy: seats[0])
         print(Report.tournament(decks: decks, stats: stats, bestOf: options.bestOf))
         writeMarkdown(Report.tournamentMarkdown(decks: decks, stats: stats, bestOf: options.bestOf), to: options.markdownPath)
     } else if decks.count == 2 {
-        let stats = await Simulator.duel(catalog: catalog, a: decks[0], b: decks[1], games: options.games, seed: options.seed, workers: options.workers, search: both, config: config)
+        let stats = await Simulator.duel(catalog: catalog, a: decks[0], b: decks[1], games: options.games, seed: options.seed, workers: options.workers, policies: seats)
         print(Report.duel(a: decks[0], b: decks[1], stats: stats))
         writeMarkdown(Report.duelMarkdown(a: decks[0], b: decks[1], stats: stats), to: options.markdownPath)
     } else {
         var scores = Array(repeating: Array<Double?>(repeating: nil, count: decks.count), count: decks.count)
         for i in decks.indices {
             for j in decks.indices where i < j {
-                let stats = await Simulator.duel(catalog: catalog, a: decks[i], b: decks[j], games: options.games, seed: options.seed, workers: options.workers, search: [options.search, options.search], config: config)
+                let stats = await Simulator.duel(catalog: catalog, a: decks[i], b: decks[j], games: options.games, seed: options.seed, workers: options.workers, policies: seats)
                 scores[i][j] = stats.scoreA
                 scores[j][i] = 1 - stats.scoreA
             }

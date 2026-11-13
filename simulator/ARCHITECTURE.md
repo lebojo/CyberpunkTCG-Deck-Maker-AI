@@ -106,7 +106,7 @@ Les choix de cible et de mode (« choisir un effet ») sont faits par une foncti
 
 ## 9. CLI (rétrocompatible)
 
-`DeckSim <deck1.txt> <deck2.txt> [...]` avec `--games`, `--seed`, `--workers`, `--tournaments N`, `--bo N`, `--ai`, `--samples`, `--depth`, `--shortlist`, `--trace`, `--md fichier.md`, plus `--coverage`, `--bluff on|off`, `--no-live` (désactive l'affichage en direct). `--cards` est supprimé.
+`DeckSim <deck1.txt> <deck2.txt> [...]` avec `--games`, `--seed`, `--workers`, `--tournaments N`, `--bo N`, `--ai`, `--samples`, `--depth`, `--shortlist`, `--trace`, `--md fichier.md`, plus `--coverage`, `--bluff on|off`, `--opponent-budget N`, `--no-live` (désactive l'affichage en direct). `--cards` est supprimé.
 
 ## 10. Règles de code
 
@@ -127,6 +127,7 @@ Les 5 decks de référence sont dans `Regression/decks/`. Le résultat de l'anci
 - **Protocole `GameCard`** : en plus de `data`, `action`, `modifiers`, `playValue` et `keepValue`, il demande `init(data:)` (le registre construit la carte), `listens: EventMask` (obligatoire : seuls ces événements sont envoyés, pour garder la boucle chaude rapide), et propose avec valeurs par défaut `keywords`, `modifierScopes` (portées interrogées par le moteur), `abilities` / `abilityOptions` / `activate` (capacités activées), `hints: AIHints` (indices statiques pour l'IA) et `attackValueBonus`.
 - **Événements** : `playedFromHandAsGearEquipped` est `.played` avec une location `.gear(host:)` ; `stoleGig` est séparé en `.stoleGigs` (l'attaque) et `.gigStolen` (chaque Gig) ; `legendSpentAbility` n'est pas un événement mais une `ActivatedAbility` ; ajouts : `.blocked`, `.wouldBeDefeated` et `.gigWouldBeStolen` (remplacements), `.turnStarted`, `.gigRolled`, `.gigsAlteredByRival`. La relation de la carte qui reçoit (`itself`, `attachedTo`, `ally`, `delayed`) est dans `EffectContext.relation`.
 - **`EffectContext`** contient le `Game` (échangé avec un `Game` vide le temps de l'appel, sans copie des tableaux) et `EffectQuery` une copie en lecture ; `GameReading` regroupe les lectures communes, `GameActions` les actions.
+- **IA** : la politique est `Policy` (recherche ou glouton + `SearchConfig`). L'adversaire simulé ne joue que le premier tour adverse de chaque approfondissement, en choisissant entre plans de tour complets (budget réglable par `--opponent-budget`), pour tenir le coût sous 2,5×. `--bluff` vaut `off` par défaut (A/B non concluant). `--ai greedy` utilise l'heuristique modernisée ; la référence §11 se reproduit avec `--ai greedy --ai-old all`. Outils de dev ajoutés : `--ai-old b|all`, `--bluff-ab`.
 - **Performances** : chaque tâche de simulation travaille sur sa propre copie du catalogue (`CardCatalog.isolatedCopy()`), pour éviter que les compteurs de références partagés entre cœurs ne ralentissent le calcul. Les profils statiques des cartes (mots-clés, événements écoutés, portées, capacités) sont calculés une fois par catalogue.
 - **`KeywordCard`** (dossier `Generic/`) marque les cartes dont le texte n'est que des mots-clés ; `VanillaCard` reste la valeur par défaut des cartes non enregistrées.
 - **Mulligan, Defense** sont dans `AI/Heuristics/` (`Mulligan.swift`, `Defense.swift`, `QuickResponses.swift`) ; `Bluff`, `ProgressTracker`, `LiveDashboard` ne sont pas encore écrits (`--bluff` et `--no-live` sont acceptés et sans effet).

@@ -6,7 +6,7 @@ enum MainAction: Sendable {
 
 extension Game {
     mutating func runMainPhase(_ p: Int) {
-        if searchPlayers[p] { searchMainPhase(p) } else { greedyMainPhase(p) }
+        if policies[p].search { searchMainPhase(p) } else { greedyMainPhase(p) }
     }
 
     mutating func greedyMainPhase(_ p: Int) {
@@ -36,11 +36,11 @@ extension Game {
         callLegend(p, slot, free: false)
     }
 
-    mutating func developBoard(_ p: Int) {
+    mutating func developBoard(_ p: Int, reserve: Int = 0) {
         var guardCount = 0
         while guardCount < 40, !isOver {
             guardCount += 1
-            guard let action = bestMainAction(p) else { return }
+            guard let action = bestMainAction(p, reserve: reserve) else { return }
             switch action {
             case .ability(let use):
                 activate(p, use)
@@ -52,21 +52,22 @@ extension Game {
         }
     }
 
-    func bestMainAction(_ p: Int) -> MainAction? {
+    func bestMainAction(_ p: Int, reserve: Int = 0) -> MainAction? {
         var best: (action: MainAction, value: Double)?
         func consider(_ action: MainAction, _ value: Double) {
             if value > (best?.value ?? 5) { best = (action, value) }
         }
-        let mainUses = abilityUses(p, timing: .mainAction)
+        let budget = availableMana(p) - reserve
+        let mainUses = abilityUses(p, timing: .mainAction).filter { reserve == 0 || $0.option.eddieCost <= budget }
         for use in mainUses where isLegendSource(use) {
             consider(.ability(use), use.option.value)
         }
-        let mana = availableMana(p)
+        let mana = budget
         for (index, id) in players[p].hand.enumerated() {
             guard stats(id).kind != .legend, effectiveCost(p, id) <= mana else { continue }
             if let value = playValue(p, id) { consider(.play(handIndex: index), value) }
         }
-        for slot in players[p].legends.indices {
+        for slot in players[p].legends.indices where reserve == 0 {
             if let value = goSoloValue(p, slot: slot) { consider(.goSolo(slot: slot), value) }
         }
         for use in mainUses where !isLegendSource(use) {
@@ -104,22 +105,25 @@ extension Game {
         return 18 + Double(total) * 1.5 + Double(steals) * 6 + legendProfile.hints.goSoloBonus
     }
 
-    mutating func attackPhase(_ p: Int) {
+    mutating func attackPhase(_ p: Int, keepBlockersHome: Bool = false) {
         var iterations = 0
         while iterations < 14, !isOver {
             iterations += 1
-            guard let choice = bestAttack(p) else { return }
+            guard let choice = bestAttack(p, keepBlockersHome: keepBlockersHome) else { return }
             prepareAttack(p, uid: choice.uid)
             performAttack(p, attackerUid: choice.uid, target: choice.target)
         }
     }
 
-    func bestAttack(_ p: Int) -> (uid: Int, target: AttackTarget, value: Double)? {
+    func bestAttack(_ p: Int, keepBlockersHome: Bool = false) -> (uid: Int, target: AttackTarget, value: Double)? {
         var best: (uid: Int, target: AttackTarget, value: Double)?
         let rival = 1 - p
+        let aware = !policies[p].config.legacy
+        let threat = aware ? quickThreat(of: rival) : 0
         let rivalBlockers = players[rival].field.filter { isBlocker(rival, $0) && !$0.spent }
         let desperate = overtime || turn >= 12 || players[rival].gigs.count >= 5
-        for unit in attackersAvailable(p) {
+        for unit in attackersAvailable(p) where !(keepBlockersHome && isBlocker(p, unit)) {
+            let guarding = aware ? guardCost(p, unit) : 0
             let unitHints = profile(unit.cardId).hints
             let myPower = power(p, unit, attacking: true)
             let unitValue = unitThreat(p, unit)
@@ -138,6 +142,7 @@ extension Game {
                     else if rivalBlockers.contains(where: { power(rival, $0, attacking: false) == myPower }) { value -= unitValue * 0.3 }
                 }
                 value -= exposurePenalty
+                if aware { value -= guarding + quickDeterrence(attacker: p, unit: unit, target: .gigs, threat: threat) }
                 if value > (best?.value ?? 5) { best = (unit.uid, .gigs, value) }
             }
             for target in validUnitTargets(p, unit) {
@@ -149,6 +154,7 @@ extension Game {
                 guard var fightValue = value else { continue }
                 fightValue -= exposurePenalty
                 if !players[rival].gigs.isEmpty && canStealGigs(p, unit) { fightValue -= 6 }
+                if aware { fightValue -= guarding + quickDeterrence(attacker: p, unit: unit, target: .unit(target.uid), threat: threat) }
                 if fightValue > (best?.value ?? 5) { best = (unit.uid, .unit(target.uid), fightValue) }
             }
         }
