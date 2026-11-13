@@ -6,7 +6,13 @@ extension Game {
         if attacks { attackPhase(p, keepBlockersHome: true) }
         if isOver { return }
         developBoard(p, reserve: reserve)
+        finishHolding(p, reserve: reserve)
         note("P\(p) \(reserve > 0 ? "bluffe : garde \(reserve) mana ouvert et ses Units prêtes" : "garde ses Blockers à la maison")")
+    }
+
+    mutating func finishHolding(_ p: Int, reserve: Int) {
+        if availableMana(p) > reserve { callLegendIfUseful(p) }
+        if reserve == 0 { useAbilities(p, timing: .endOfMainPhase) }
     }
 
     func bluffReserve(_ p: Int) -> Int? {

@@ -36,7 +36,7 @@ final class LiveDashboardTests: XCTestCase {
     }
 
     func testNonTournamentSortedByGameWinRate() {
-        let lines = LiveDashboard.tableLines(snapshot(mode: .matrix(duels: 3), done: 1), width: 100)
+        let lines = LiveDashboard.tableLines(snapshot(mode: .matrix(duels: 3, gamesPerDuel: 10), done: 1), width: 100)
         XCTAssertTrue(lines[1].contains("Gamma"))
         XCTAssertTrue(lines[3].contains("Alpha"))
     }
@@ -120,7 +120,7 @@ final class ProgressTrackerTests: XCTestCase {
     }
 
     func testMatrixDuelFinish() {
-        let tracker = ProgressTracker(mode: .matrix(duels: 3), deckNames: ["A", "B", "C"])
+        let tracker = ProgressTracker(mode: .matrix(duels: 3, gamesPerDuel: 10), deckNames: ["A", "B", "C"])
         tracker.beginDuel(a: 0, b: 1)
         XCTAssertEqual(tracker.snapshot().currentDuel, [0, 1])
         tracker.finishDuel(a: 0, b: 1, scoreA: 0.6)
@@ -129,5 +129,59 @@ final class ProgressTrackerTests: XCTestCase {
         XCTAssertEqual(snap.completedUnits, 1)
         XCTAssertEqual(snap.decks[0].matchesWon, 1)
         XCTAssertEqual(snap.decks[1].matchesWon, 0)
+    }
+
+    func testMatrixProgressInterpolatesCurrentDuel() {
+        let tracker = ProgressTracker(mode: .matrix(duels: 2, gamesPerDuel: 100), deckNames: ["A", "B", "C"])
+        tracker.beginDuel(a: 0, b: 1)
+        DuelProgress(tracker: tracker, a: 0, b: 1).publish(GameBatch(games: 50, winsA: 25, winsB: 25))
+        let snap = tracker.snapshot()
+        XCTAssertEqual(snap.fraction, 0.25, accuracy: 1e-9)
+        XCTAssertNotNil(snap.etaSeconds)
+    }
+
+    func testDrawnDuelIsHalfAWinForBoth() {
+        let tracker = ProgressTracker(mode: .matrix(duels: 3, gamesPerDuel: 10), deckNames: ["A", "B", "C"])
+        tracker.beginDuel(a: 0, b: 1)
+        tracker.finishDuel(a: 0, b: 1, scoreA: 0.5)
+        let snap = tracker.snapshot()
+        XCTAssertEqual(snap.decks[0].matchWinRate, 0.5)
+        XCTAssertEqual(snap.decks[1].matchWinRate, 0.5)
+        XCTAssertTrue(LiveDashboard.tableLines(snap, width: 100).joined().contains("0.5"))
+    }
+}
+
+final class LiveDisplayTests: XCTestCase {
+    func testLiveOutputGoesToStandardError() {
+        XCTAssertEqual(LiveDisplay.descriptor, STDERR_FILENO)
+    }
+
+    func testEveryLineFitsTheCurrentWidth() {
+        let lines = LiveDisplay.fitted(["x" + String(repeating: "y", count: 60), "court"], width: 12)
+        XCTAssertTrue(lines.allSatisfy { $0.count <= 11 })
+    }
+
+    func testRedrawClimbsRowsReflowedByANarrowerTerminal() {
+        let previous = LiveDisplay.Frame(lengths: [79, 10])
+        XCTAssertEqual(previous.rowsOccupied(width: 80), 2)
+        XCTAssertEqual(previous.rowsOccupied(width: 40), 3)
+        XCTAssertTrue(LiveDisplay.frameText(["a"], after: previous, width: 40).hasPrefix("\u{1B}[3A"))
+    }
+
+    func testStopRestoresPreviousSignalHandler() {
+        let custom: @convention(c) (Int32) -> Void = { _ in }
+        let original = signal(SIGTERM, custom)
+        let display = LiveDisplay.start(tracker: ProgressTracker(mode: .duel(games: 1), deckNames: ["A", "B"]), interactive: true)
+        display.stop()
+        let current = signal(SIGTERM, original)
+        XCTAssertEqual(current.map { unsafeBitCast($0, to: Int.self) }, unsafeBitCast(custom, to: Int.self))
+    }
+}
+
+final class TournamentSeatTests: XCTestCase {
+    func testFirstDeckKeepsFirstSeatPolicy() {
+        let policies = [Policy(search: true), Policy(search: true).legacy]
+        XCTAssertEqual(Tournament.seatPolicy(policies, deck: 0), policies[0])
+        XCTAssertEqual(Tournament.seatPolicy(policies, deck: 3), policies[1])
     }
 }

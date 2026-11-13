@@ -3,13 +3,13 @@ import os
 
 public enum ProgressMode: Sendable, Equatable {
     case duel(games: Int)
-    case matrix(duels: Int)
+    case matrix(duels: Int, gamesPerDuel: Int)
     case tournament(count: Int)
 
     var totalUnits: Int {
         switch self {
         case .duel(let games): return games
-        case .matrix(let duels): return duels
+        case .matrix(let duels, _): return duels
         case .tournament(let count): return count
         }
     }
@@ -18,13 +18,15 @@ public enum ProgressMode: Sendable, Equatable {
 public struct DeckProgress: Sendable, Equatable {
     public var matchesPlayed = 0
     public var matchesWon = 0
+    public var matchesDrawn = 0
     public var gamesPlayed = 0
     public var gamesWon = 0
     public var titles = 0
 
     public init() {}
 
-    public var matchWinRate: Double { matchesPlayed == 0 ? 0 : Double(matchesWon) / Double(matchesPlayed) }
+    public var matchPoints: Double { Double(matchesWon) + 0.5 * Double(matchesDrawn) }
+    public var matchWinRate: Double { matchesPlayed == 0 ? 0 : matchPoints / Double(matchesPlayed) }
     public var gameWinRate: Double { gamesPlayed == 0 ? 0 : Double(gamesWon) / Double(gamesPlayed) }
 }
 
@@ -89,7 +91,12 @@ public struct ProgressSnapshot: Sendable, Equatable {
 
     public var fraction: Double {
         guard totalUnits > 0 else { return 1 }
-        return min(1, Double(completedUnits) / Double(totalUnits))
+        return min(1, (Double(completedUnits) + currentDuelFraction) / Double(totalUnits))
+    }
+
+    var currentDuelFraction: Double {
+        guard case .matrix(_, let gamesPerDuel) = mode, currentDuel != nil, gamesPerDuel > 0 else { return 0 }
+        return min(1, Double(currentDuelGames) / Double(gamesPerDuel))
     }
 
     public var gamesPerSecond: Double { elapsed > 0 ? Double(gamesDone) / elapsed : 0 }
@@ -139,6 +146,10 @@ public final class ProgressTracker: Sendable {
             $0.decks[b].matchesPlayed += 1
             if scoreA > 0.5 { $0.decks[a].matchesWon += 1 }
             if scoreA < 0.5 { $0.decks[b].matchesWon += 1 }
+            if scoreA == 0.5 {
+                $0.decks[a].matchesDrawn += 1
+                $0.decks[b].matchesDrawn += 1
+            }
             $0.currentDuel = nil
         }
     }

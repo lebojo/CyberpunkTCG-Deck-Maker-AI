@@ -85,7 +85,7 @@ public enum LiveDashboard {
         case .matrix:
             return [
                 Column(header: "Duels", priority: 2) { String($0.matchesPlayed) },
-                Column(header: "Gagnés", priority: 3) { String($0.matchesWon) },
+                Column(header: "Gagnés", priority: 3) { pointsText($0.matchPoints) },
                 Column(header: "WR duels", priority: 4) { Report.percent($0.matchWinRate) },
                 games,
             ]
@@ -100,6 +100,10 @@ public enum LiveDashboard {
                 games,
             ]
         }
+    }
+
+    static func pointsText(_ points: Double) -> String {
+        points == points.rounded() ? String(Int(points)) : String(format: "%.1f", points)
     }
 
     static func columnWidth(_ column: Column, _ snapshot: ProgressSnapshot) -> Int {

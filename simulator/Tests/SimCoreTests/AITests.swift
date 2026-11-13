@@ -60,21 +60,21 @@ final class QuickThreatTests: XCTestCase {
 
 final class DefenseValueTests: XCTestCase {
     func testBlockerStopsAttackerItMatches() {
-        let value = DefenseValue.of(blockers: [5], attackers: [IncomingAttacker(power: 4, weight: 1, unblockable: false)], stealWorth: { Double($0) * 10 })
+        let value = DefenseValue.of(blockers: [5], attackers: [IncomingAttacker(power: 4, weight: 1, unblockable: false)], attackWorth: { Double(Fixtures.game().stealCount(forPower: $0)) * 10 })
         XCTAssertEqual(value, 10)
     }
 
     func testWeakBlockerDoesNotCount() {
-        XCTAssertEqual(DefenseValue.of(blockers: [3], attackers: [IncomingAttacker(power: 4, weight: 1, unblockable: false)], stealWorth: { Double($0) * 10 }), 0)
+        XCTAssertEqual(DefenseValue.of(blockers: [3], attackers: [IncomingAttacker(power: 4, weight: 1, unblockable: false)], attackWorth: { Double(Fixtures.game().stealCount(forPower: $0)) * 10 }), 0)
     }
 
     func testUnblockableIgnored() {
-        XCTAssertEqual(DefenseValue.of(blockers: [9], attackers: [IncomingAttacker(power: 4, weight: 1, unblockable: true)], stealWorth: { Double($0) * 10 }), 0)
+        XCTAssertEqual(DefenseValue.of(blockers: [9], attackers: [IncomingAttacker(power: 4, weight: 1, unblockable: true)], attackWorth: { Double(Fixtures.game().stealCount(forPower: $0)) * 10 }), 0)
     }
 
     func testEachBlockerUsedOnceAgainstBiggestThreat() {
         let attackers = [IncomingAttacker(power: 3, weight: 1, unblockable: false), IncomingAttacker(power: 12, weight: 0.5, unblockable: false)]
-        XCTAssertEqual(DefenseValue.of(blockers: [14], attackers: attackers, stealWorth: { Double($0) * 10 }), 0.5 * 2 * 10)
+        XCTAssertEqual(DefenseValue.of(blockers: [14], attackers: attackers, attackWorth: { Double(Fixtures.game().stealCount(forPower: $0)) * 10 }), 0.5 * 2 * 10)
     }
 
     func testReadyBlockerHasGuardValueAgainstNextTurnAttackers() {
@@ -130,6 +130,54 @@ final class HoldingTests: XCTestCase {
         XCTAssertTrue(game.apply(.bluff(reserve: 1), 0))
         XCTAssertGreaterThanOrEqual(game.availableMana(0), 1)
         XCTAssertFalse(game.unit(0, unit)!.spent)
+    }
+}
+
+final class ReviewFixTests: XCTestCase {
+    func testGuardHomeStillCallsLegend() {
+        var game = Fixtures.game(legends: [["royce-psycho-on-the-edge"], []])
+        game.policies = SidePair(Policy(search: true), Policy(search: true))
+        game.players[0].eddiesReady = 1
+        game.place("la-llorona-ghost-of-the-past", for: 0)
+        XCTAssertTrue(game.apply(.guardHome, 0))
+        XCTAssertTrue(game.players[0].flags.called)
+    }
+
+    func testBluffKeepsItsReserveBeforeCallingLegend() {
+        var game = Fixtures.game(legends: [["royce-psycho-on-the-edge"], []], decks: [["floor-it"], []])
+        game.policies = SidePair(Policy(search: true, config: SearchConfig(bluff: true)), .greedy)
+        game.players[0].eddiesReady = 0
+        XCTAssertTrue(game.apply(.bluff(reserve: 1), 0))
+        XCTAssertFalse(game.players[0].flags.called)
+        XCTAssertEqual(game.availableMana(0), 1)
+    }
+
+    func testSimulatedRivalUsesItsOwnSeatPolicy() {
+        var game = Fixtures.game()
+        game.policies = SidePair(Policy(search: true, config: SearchConfig(bluff: true)), Policy(search: true).legacy)
+        let simulated = game.simulatedPolicies(for: 0)
+        XCTAssertTrue(simulated[1].config.legacy)
+        XCTAssertFalse(simulated[1].config.bluff)
+        XCTAssertTrue(simulated[1].config.isSimulatedOpponent)
+        XCTAssertTrue(simulated[0].config.bluff)
+    }
+
+    func testGreedyRivalIsSimulatedGreedy() {
+        var game = Fixtures.game()
+        game.policies = SidePair(Policy(search: true), Policy(search: false))
+        XCTAssertFalse(game.simulatedPolicies(for: 0)[1].search)
+    }
+
+    func testOnlySimulatedOpponentIsFlagged() {
+        XCTAssertFalse(SearchConfig().isSimulatedOpponent)
+        XCTAssertTrue(SearchConfig().simulatedOpponent(playing: SearchConfig()).isSimulatedOpponent)
+    }
+
+    func testRushManaCountsSpentLegendsThatReadyNextTurn() {
+        var game = Fixtures.game(legends: [[], ["royce-psycho-on-the-edge", "dum-dum-maelstrom-triggerman"]], decks: [[], ["modded-kusanagi", "corpo-security"]])
+        game.players[1].eddiesSpent = 4
+        for slot in game.players[1].legends.indices { game.players[1].legends[slot].spent = true }
+        XCTAssertEqual(game.rushThreats(from: 1).first?.power, 8)
     }
 }
 
