@@ -11,8 +11,10 @@ struct RiverWardDetectiveOnTheHunt: GameCard {
         guard case .defeated(let report) = event, report.wasEquipped else { return }
         let looked = context.takeTop(2)
         guard let worst = looked.min(by: { context.stats($0).costValue < context.stats($1).costValue }) else { return }
+        var kept = looked
+        if let index = kept.firstIndex(of: worst) { kept.remove(at: index) }
         context.putInTrash([worst])
-        context.putOnTop(looked.filter { $0 != worst })
+        context.putOnTop(kept)
     }
 
     func abilityOptions(_ ability: ActivatedAbility, in query: EffectQuery) -> [AbilityOption] {
