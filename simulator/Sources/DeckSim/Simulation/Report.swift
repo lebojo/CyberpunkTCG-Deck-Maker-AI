@@ -73,6 +73,72 @@ enum Report {
         return lines.joined(separator: "\n")
     }
 
+    static func markdownCell(_ text: String) -> String {
+        text.replacingOccurrences(of: "|", with: "\\|")
+    }
+
+    static func tournamentMarkdown(decks: [DeckList], stats: TournamentStats, bestOf: Int) -> String {
+        let n = Double(max(1, stats.tournaments))
+        var lines: [String] = []
+        lines.append("# Résultats de tournois")
+        lines.append("")
+        lines.append("\(stats.tournaments) tournois à élimination directe, \(decks.count) decks, matchs en BO\(bestOf), ordre de départ aléatoire à chaque tournoi.")
+        lines.append("Un deck qui gagnerait au hasard remporterait \(percent(1.0 / Double(decks.count))) des tournois.")
+        lines.append("")
+        lines.append("| # | Deck | Tournois gagnés | Finales | Matchs gagnés | Parties gagnées |")
+        lines.append("|---|---|---|---|---|---|")
+        let order = decks.indices.sorted { stats.titles[$0] > stats.titles[$1] }
+        for (rank, index) in order.enumerated() {
+            let title = Double(stats.titles[index]) / n
+            let margin = 1.96 * (title * (1 - title) / n).squareRoot()
+            let finals = Double(stats.finals[index]) / n
+            let matches = Double(stats.matchesWon[index]) / Double(max(1, stats.matchesPlayed[index]))
+            let games = Double(stats.gamesWon[index]) / Double(max(1, stats.gamesPlayed[index]))
+            lines.append("| \(rank + 1) | \(markdownCell(decks[index].name)) | **\(percent(title))** ±\(percent(margin)) | \(percent(finals)) | \(percent(matches)) | \(percent(games)) |")
+        }
+        return lines.joined(separator: "\n") + "\n"
+    }
+
+    static func matrixMarkdown(decks: [DeckList], scores: [[Double?]]) -> String {
+        var lines: [String] = []
+        lines.append("# Matrice des duels")
+        lines.append("")
+        lines.append("Win rate de la ligne contre la colonne.")
+        lines.append("")
+        lines.append("| Deck | " + decks.indices.map { "#\($0 + 1)" }.joined(separator: " | ") + " | Moyenne |")
+        lines.append("|---|" + String(repeating: "---|", count: decks.count + 1))
+        var averages: [(Int, Double)] = []
+        for row in decks.indices {
+            let values = scores[row].compactMap { $0 }
+            let average = values.isEmpty ? 0 : values.reduce(0, +) / Double(values.count)
+            averages.append((row, average))
+            let cells = decks.indices.map { scores[row][$0].map { percent($0) } ?? "-" }
+            lines.append("| #\(row + 1) \(markdownCell(decks[row].name)) | " + cells.joined(separator: " | ") + " | **\(percent(average))** |")
+        }
+        lines.append("")
+        lines.append("## Classement")
+        lines.append("")
+        lines.append("| # | Deck | Win rate moyen |")
+        lines.append("|---|---|---|")
+        for (rank, entry) in averages.sorted(by: { $0.1 > $1.1 }).enumerated() {
+            lines.append("| \(rank + 1) | \(markdownCell(decks[entry.0].name)) | \(percent(entry.1)) |")
+        }
+        return lines.joined(separator: "\n") + "\n"
+    }
+
+    static func duelMarkdown(a: DeckList, b: DeckList, stats: DuelStats) -> String {
+        var lines: [String] = []
+        lines.append("# \(markdownCell(a.name)) vs \(markdownCell(b.name))")
+        lines.append("")
+        lines.append("\(stats.games) parties, marge d'erreur ±\(percent(stats.confidenceMargin)).")
+        lines.append("")
+        lines.append("| Deck | Win rate | Victoires |")
+        lines.append("|---|---|---|")
+        lines.append("| \(markdownCell(a.name)) | **\(percent(stats.scoreA))** | \(stats.winsA) |")
+        lines.append("| \(markdownCell(b.name)) | **\(percent(1 - stats.scoreA))** | \(stats.winsB) |")
+        return lines.joined(separator: "\n") + "\n"
+    }
+
     static func unsupportedCards(decks: [DeckList], catalog: CardCatalog) -> [String] {
         var names = Set<String>()
         for deck in decks {

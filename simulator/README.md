@@ -18,6 +18,7 @@ swift build -c release
 - `--tournaments N [--bo 3]` : N tournois à élimination directe (ordre de départ aléatoire à chaque tournoi), classés par titres gagnés.
 - `--ai search|greedy|versus` : IA qui explore ses coups (défaut), heuristique rapide, ou 1er deck en recherche contre le 2e en heuristique.
 - `--samples N --depth N --shortlist N` : réglages de la recherche (3 mains adverses tirées par décision, 3 tours projetés, 4 coups approfondis).
+- `--md fichier.md` : écrit aussi le tableau des résultats au format Markdown (tournoi, matrice ou duel).
 - `--seed` pour reproduire un résultat, `--workers N` pour limiter le parallélisme.
 
 Les cartes sont téléchargées une fois depuis NetDeck puis mises en cache dans `~/.cache/cyberpunk-deck-sim/cards.json` (`--cards` pour un autre chemin).

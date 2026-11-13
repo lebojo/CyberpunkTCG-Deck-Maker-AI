@@ -10,6 +10,7 @@ struct Options {
     var search = true
     var versus = false
     var bestOf = 3
+    var markdownPath: String?
     var samples = 3
     var depth = 3
     var shortlist = 4
@@ -53,6 +54,9 @@ func parseOptions(_ arguments: [String]) throws -> Options {
             guard let value = iterator.next(), ["search", "greedy", "versus"].contains(value) else { throw CLIError.usage("--ai attend search, greedy ou versus") }
             options.search = value != "greedy"
             options.versus = value == "versus"
+        case "--md":
+            guard let value = iterator.next() else { throw CLIError.usage("--md attend un chemin de fichier .md") }
+            options.markdownPath = NSString(string: value).expandingTildeInPath
         case "--samples":
             guard let value = iterator.next(), let samples = Int(value), samples > 0 else { throw CLIError.usage("--samples attend un entier positif") }
             options.samples = samples
@@ -76,10 +80,21 @@ func parseOptions(_ arguments: [String]) throws -> Options {
           --tournaments N [--bo 3] : N tournois à élimination directe, ordre de départ aléatoire, classés par titres gagnés
           --ai search|greedy|versus : IA qui explore ses coups (défaut), heuristique rapide, ou 1er deck en recherche contre 2e en heuristique
           --samples N --depth N --shortlist N : mains adverses tirées par décision, tours projetés, coups approfondis (3, 3, 4)
+          --md fichier.md : écrit aussi le tableau de résultats au format Markdown
           --trace  : affiche le déroulé d'une seule partie
         """)
     }
     return options
+}
+
+func writeMarkdown(_ content: String, to path: String?) {
+    guard let path else { return }
+    do {
+        try content.write(toFile: path, atomically: true, encoding: .utf8)
+        print("\nTableau Markdown écrit dans \(path)")
+    } catch {
+        print("Impossible d'écrire \(path) : \(error)")
+    }
 }
 
 func run() async throws {
@@ -106,9 +121,11 @@ func run() async throws {
     if options.tournaments > 0 {
         let stats = await Tournament.run(catalog: catalog, decks: decks, count: options.tournaments, bestOf: options.bestOf, seed: options.seed, workers: options.workers, search: options.search)
         print(Report.tournament(decks: decks, stats: stats, bestOf: options.bestOf))
+        writeMarkdown(Report.tournamentMarkdown(decks: decks, stats: stats, bestOf: options.bestOf), to: options.markdownPath)
     } else if decks.count == 2 {
         let stats = await Simulator.duel(catalog: catalog, a: decks[0], b: decks[1], games: options.games, seed: options.seed, workers: options.workers, search: options.versus ? [true, false] : [options.search, options.search])
         print(Report.duel(a: decks[0], b: decks[1], stats: stats))
+        writeMarkdown(Report.duelMarkdown(a: decks[0], b: decks[1], stats: stats), to: options.markdownPath)
     } else {
         var scores = Array(repeating: Array<Double?>(repeating: nil, count: decks.count), count: decks.count)
         for i in decks.indices {
@@ -119,6 +136,7 @@ func run() async throws {
             }
         }
         print(Report.matrix(decks: decks, scores: scores))
+        writeMarkdown(Report.matrixMarkdown(decks: decks, scores: scores), to: options.markdownPath)
     }
     print(String(format: "\n(%.1f s)", Date().timeIntervalSince(start)))
 }
