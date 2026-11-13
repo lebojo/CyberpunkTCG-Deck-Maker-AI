@@ -6,17 +6,15 @@ enum SearchAction: Sendable, Hashable {
     case goSolo(Int)
     case attack(Int, AttackTarget)
     case endTurn
-}
+    case guardHome
+    case bluff(reserve: Int)
+    case greedyTurn
 
-public struct SearchConfig: Sendable {
-    public var samples = 3
-    public var depth = 3
-    public var shortlist = 4
-
-    public init(samples: Int = 3, depth: Int = 3, shortlist: Int = 4) {
-        self.samples = samples
-        self.depth = depth
-        self.shortlist = shortlist
+    var endsTurn: Bool {
+        switch self {
+        case .endTurn, .guardHome, .bluff, .greedyTurn: return true
+        default: return false
+        }
     }
 }
 
@@ -46,13 +44,14 @@ extension Game {
         let myFaceUp = players[me].legends.filter { $0.faceUp }.count + players[me].field.filter { $0.isLegend }.count
         let rivalFaceUp = players[rival].legends.filter { $0.faceUp }.count + players[rival].field.filter { $0.isLegend }.count
         score += Double(myFaceUp - rivalFaceUp) * 4
+        if !policies[me].config.legacy { score += defenseBalance(me) }
         return score
     }
 
     mutating func determinizedWorld(for me: Int) -> Game {
         var world = self
         world.rng = SplitMix64(seed: rng.next())
-        world.searchPlayers = SidePair(false, false)
+        world.policies = simulatedPolicies(for: me)
         world.tracing = false
         world.players[me].deck.shuffle(using: &world.rng)
         let rival = 1 - me
@@ -74,6 +73,17 @@ extension Game {
         return world
     }
 
+    func simulatedPolicies(for me: Int) -> SidePair<Policy> {
+        let config = policies[me].config
+        var result = SidePair(Policy(search: false, config: config), Policy(search: false, config: config))
+        if config.modelsOpponent { result[1 - me] = Policy(search: true, config: config.simulatedOpponent) }
+        return result
+    }
+
+    func planActions(_ p: Int) -> [SearchAction] {
+        [.endTurn, .greedyTurn] + holdingActions(p)
+    }
+
     func candidateActions(_ p: Int) -> [SearchAction] {
         var actions: [SearchAction] = [.endTurn]
         let player = players[p]
@@ -81,8 +91,8 @@ extension Game {
         let totalEddies = player.eddiesReady + player.eddiesSpent
 
         if !player.flags.sold, player.hand.count >= 2, totalEddies < 8 {
-            let sellable = Set(player.hand.filter { stats($0).isSellable && stats($0).kind != .legend })
-            for id in sellable.sorted(by: { keepValue(p, $0) < keepValue(p, $1) }).prefix(3) { actions.append(.sell(id)) }
+            let sellable = Set(player.hand.filter { stats($0).isSellable && stats($0).kind != .legend }).sorted()
+            for id in sellable.sorted(by: { (keepValue(p, $0), $0) < (keepValue(p, $1), $1) }).prefix(3) { actions.append(.sell(id)) }
         }
         if !player.flags.called, mana >= 1, player.legends.contains(where: { !$0.faceUp }) { actions.append(.call) }
 
@@ -110,6 +120,7 @@ extension Game {
         }
         actions.append(contentsOf: distinctAbilityActions(p, timing: .beforeAttacks))
         actions.append(contentsOf: distinctAbilityActions(p, timing: .endOfMainPhase))
+        actions.append(contentsOf: holdingActions(p))
         return actions
     }
 
@@ -130,6 +141,15 @@ extension Game {
     mutating func apply(_ action: SearchAction, _ p: Int) -> Bool {
         switch action {
         case .endTurn:
+            return true
+        case .greedyTurn:
+            greedyMainPhase(p)
+            return true
+        case .guardHome:
+            holdMainPhase(p, reserve: 0, attacks: true)
+            return true
+        case .bluff(let reserve):
+            holdMainPhase(p, reserve: reserve, attacks: false)
             return true
         case .sell(let id):
             guard !players[p].flags.sold, let index = players[p].hand.firstIndex(of: id) else { return false }
@@ -167,14 +187,12 @@ extension Game {
         guard branch.apply(action, p), !branch.isOver || action != .endTurn else { return [] }
         var stopped = branch
         stopped.finishTurn(p)
-        var results = [stopped]
-        if action != .endTurn {
-            var continued = branch
-            continued.greedyMainPhase(p)
-            continued.finishTurn(p)
-            results.append(continued)
-        }
-        return results
+        if action.endsTurn { return [stopped] }
+        var continued = branch
+        continued.greedyMainPhase(p)
+        continued.finishTurn(p)
+        if policies[p].config.depth == 0 { return [continued] }
+        return [stopped, continued]
     }
 
     func deepValue(_ game: Game, for p: Int, depth: Int) -> Double {
@@ -184,6 +202,7 @@ extension Game {
         var weight = 1.0
         for _ in 0..<depth {
             if !future.isOver { future.playTurn() }
+            future.policies[1 - p].search = false
             weightedSum += future.evaluate(p) * weight
             weightTotal += weight
             if future.isOver { break }
@@ -193,42 +212,57 @@ extension Game {
     }
 
     mutating func searchMainPhase(_ p: Int) {
-        let config = searchConfig
+        let config = policies[p].config
         var steps = 0
-        while steps < 18, !isOver {
+        while steps < config.maxSteps, !isOver {
             steps += 1
-            let actions = candidateActions(p)
-            guard actions.count > 1 else { return }
+            let simulated = config.depth == 0
+            let actions = simulated && steps == config.maxSteps ? planActions(p) : candidateActions(p)
+            guard actions.count > 1 else {
+                if simulated { greedyMainPhase(p) }
+                return
+            }
             var worlds: [Game] = []
             for _ in 0..<config.samples { worlds.append(determinizedWorld(for: p)) }
-            var quick = [Double](repeating: 0, count: actions.count)
-            var valid = [Int](repeating: 0, count: actions.count)
-            for world in worlds {
-                for (index, action) in actions.enumerated() {
-                    guard let top = variants(of: action, in: world, for: p).map({ $0.evaluate(p) }).max() else { continue }
-                    quick[index] += top
-                    valid[index] += 1
-                }
-            }
-            let ranked = actions.indices.filter { valid[$0] > 0 }
-                .sorted { quick[$0] / Double(valid[$0]) > quick[$1] / Double(valid[$1]) }
-            var shortlist = Array(ranked.prefix(config.shortlist))
-            if let endIndex = actions.firstIndex(of: .endTurn), valid[endIndex] > 0, !shortlist.contains(endIndex) {
-                shortlist.append(endIndex)
-            }
-            var best: (index: Int, value: Double)?
-            for index in shortlist {
-                var total = 0.0
-                for world in worlds {
-                    let values = variants(of: actions[index], in: world, for: p).map { deepValue($0, for: p, depth: config.depth) }
-                    total += values.max() ?? -1_000_000
-                }
-                let value = total / Double(worlds.count) + quick[index] / Double(valid[index]) * 0.001
-                if value > (best?.value ?? -Double.infinity) { best = (index, value) }
-            }
-            guard let choice = best, actions[choice.index] != .endTurn else { return }
-            if !apply(actions[choice.index], p) { return }
+            let scores = quickScores(actions, worlds: worlds, for: p)
+            guard let choice = config.depth == 0 ? scores.ranked.first : deepChoice(actions, worlds: worlds, scores: scores, config: config, for: p) else { return }
+            let action = actions[choice]
+            guard action != .endTurn, apply(action, p), !action.endsTurn else { return }
         }
+        if config.depth == 0, !isOver { greedyMainPhase(p) }
+    }
+
+    func quickScores(_ actions: [SearchAction], worlds: [Game], for p: Int) -> (mean: [Double], ranked: [Int]) {
+        var quick = [Double](repeating: 0, count: actions.count)
+        var valid = [Int](repeating: 0, count: actions.count)
+        for world in worlds {
+            for (index, action) in actions.enumerated() {
+                guard let top = variants(of: action, in: world, for: p).map({ $0.evaluate(p) }).max() else { continue }
+                quick[index] += top
+                valid[index] += 1
+            }
+        }
+        let mean = actions.indices.map { valid[$0] > 0 ? quick[$0] / Double(valid[$0]) : -Double.infinity }
+        let ranked = actions.indices.filter { valid[$0] > 0 }.sorted { mean[$0] > mean[$1] }
+        return (mean, ranked)
+    }
+
+    func deepChoice(_ actions: [SearchAction], worlds: [Game], scores: (mean: [Double], ranked: [Int]), config: SearchConfig, for p: Int) -> Int? {
+        var shortlist = Array(scores.ranked.prefix(config.shortlist))
+        if let endIndex = actions.firstIndex(of: .endTurn), scores.mean[endIndex] > -Double.infinity, !shortlist.contains(endIndex) {
+            shortlist.append(endIndex)
+        }
+        var best: (index: Int, value: Double)?
+        for index in shortlist {
+            var total = 0.0
+            for world in worlds {
+                let values = variants(of: actions[index], in: world, for: p).map { deepValue($0, for: p, depth: config.depth) }
+                total += values.max() ?? -1_000_000
+            }
+            let value = total / Double(worlds.count) + scores.mean[index] * 0.001
+            if value > (best?.value ?? -Double.infinity) { best = (index, value) }
+        }
+        return best?.index
     }
 
     mutating func finishTurn(_ p: Int) {

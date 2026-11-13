@@ -106,8 +106,8 @@ final class RulesTests: XCTestCase {
         let catalog = Fixtures.catalog
         let deck = DeckList(name: "A", legends: ["dum-dum-maelstrom-triggerman", "river-ward-detective-on-the-hunt", "royce-psycho-on-the-edge"].map { Fixtures.id($0) },
                             main: Array(repeating: Fixtures.id("swordwise-huscle"), count: 20) + Array(repeating: Fixtures.id("mantis-blades"), count: 20))
-        let first = Simulator.playOne(catalog: catalog, decks: [deck, deck], index: 3, seed: 9, search: [false, false]).summary
-        let second = Simulator.playOne(catalog: catalog.isolatedCopy(), decks: [deck, deck], index: 3, seed: 9, search: [false, false]).summary
+        let first = Simulator.playOne(catalog: catalog, decks: [deck, deck], index: 3, seed: 9, policies: [.greedy, .greedy]).summary
+        let second = Simulator.playOne(catalog: catalog.isolatedCopy(), decks: [deck, deck], index: 3, seed: 9, policies: [.greedy, .greedy]).summary
         XCTAssertEqual(first.winner, second.winner)
         XCTAssertEqual(first.turns, second.turns)
     }

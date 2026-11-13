@@ -17,12 +17,15 @@ swift build -c release
 - 3 decks ou plus : matrice de tous les duels et classement.
 - `--trace` : déroulé d'une seule partie, pour vérifier que l'IA joue correctement.
 - `--tournaments N [--bo 3]` : N tournois à élimination directe (ordre de départ aléatoire à chaque tournoi), classés par titres gagnés.
-- `--ai search|greedy|versus` : IA qui explore ses coups (défaut), heuristique rapide, ou 1er deck en recherche contre le 2e en heuristique.
+- `--ai search|greedy` : politique des deux sièges, recherche (défaut) ou heuristique rapide. `--ai versus` (outil de dev) : 1er deck en recherche, 2e en heuristique.
+- `--opponent-budget N` : budget de l'adversaire simulé dans la recherche (défaut 1, 0 = adversaire glouton comme avant).
+- `--bluff on|off` : bluff de l'IA (défaut `off`, voir « L'IA »).
+- Outils de dev : `--ai-old b|all` fait jouer l'ancienne IA (sans bluff, défense ni adversaire simulé) au 2e deck ou aux deux ; `--bluff-ab` active le bluff pour le 1er deck seulement.
 - `--samples N --depth N --shortlist N` : réglages de la recherche (3 mains adverses tirées par décision, 3 tours projetés, 4 coups approfondis).
 - `--md fichier.md` : écrit aussi le tableau des résultats au format Markdown (tournoi, matrice ou duel).
 - `--seed` pour reproduire un résultat, `--workers N` pour limiter le parallélisme.
 - `--coverage` : liste, par couleur et par type, les cartes qui ont une implémentation dédiée, celles couvertes par leurs seuls mots-clés ou dont le texte n'est que de l'ambiance, et celles qui restent à coder. Sans deck, n'affiche que cette liste.
-- `--no-live` : désactive l'affichage en direct (voir plus bas). `--bluff on|off` : acceptée, sans effet pour l'instant (bluff à venir).
+- `--no-live` : désactive l'affichage en direct (voir plus bas).
 
 Au lancement, les cartes des decks qui n'ont pas encore d'effet codé sont listées (elles sont jouées comme des cartes sans texte, mots-clés compris).
 
@@ -76,6 +79,7 @@ Sources/SimCore/            bibliothèque (tout le métier)
   Engine/Effects/           GameEvent, EventDispatcher, EffectContext/EffectQuery, GameReading, GameActions, CardModifiers, ActivatedAbility
   AI/Heuristics/            IA gloutonne (Strategy), valeurs, mulligan, ciblage, blocage, réponses rapides, Gigs
   AI/Search/                recherche par déterminisation
+  AI/Policy/                réglages de la politique (SearchConfig, Policy), bluff et garde des Blockers
   Simulation/               duels et tournois parallèles
   Reporting/                rapports texte et Markdown, couverture
 Sources/DeckSim/            exécutable CLI (main.swift, CLI/Options.swift)
@@ -96,8 +100,8 @@ Chaque carte est un `struct` conforme à `GameCard` : ses données viennent de `
 ## Tests et non-régression
 
 - `swift test` : chargement de la base, parsing de deck, règles (vol par tranche de 10, Blocker, Lag, mulligan, victoire à 7 Gigs, vente, Appel), et un test par type de capacité (Play, Attack, Defeated, Spent, Quick, fin de tour, continu, coût, différé, remplacement, choix de mode).
-- Référence figée (IA gloutonne) : depuis `Regression/decks/`, `../../.build/release/DeckSim Meta1_*.txt Meta2_*.txt Meta3_*.txt Maelstrom_Gear_Rush_40.txt Maelstrom_Gear_Rush_Meredith_C.txt --ai greedy --seed 42 --games 2000` doit redonner `Regression/baseline-greedy-seed42.txt` (hors durée). Le refactor SimCore la reproduit à l'identique.
-- En mode recherche, les résultats varient légèrement d'un lancement à l'autre (ordre d'itération des ensembles), comme avant le refactor.
+- Référence figée (IA gloutonne) : depuis `Regression/decks/`, `../../.build/release/DeckSim Meta1_*.txt Meta2_*.txt Meta3_*.txt Maelstrom_Gear_Rush_40.txt Maelstrom_Gear_Rush_Meredith_C.txt --ai greedy --ai-old all --seed 42 --games 2000` doit redonner `Regression/baseline-greedy-seed42.txt` (hors durée), à l'identique. Sans `--ai-old all`, l'heuristique gloutonne tient compte de la défense et des Quick possibles, et les chiffres changent.
+- En mode recherche, les résultats sont reproductibles avec `--workers 1 --seed N` (l'ordre des coups « vendre » ne dépend plus de l'ordre d'itération d'un ensemble).
 
 ## Ce qui est modélisé
 
@@ -121,8 +125,18 @@ Divergences connues, conservées volontairement pour que la non-régression rest
 3. approfondit les meilleurs coups sur 3 tours (réponse adverse, son prochain tour, puis la réponse suivante), avec un poids décroissant ;
 4. joue le coup au meilleur score moyen et recommence jusqu'à ce que « finir le tour » soit le meilleur.
 
+Les deux sièges utilisent la même politique. Dans l'approfondissement, le premier tour adverse simulé est joué par cette même politique à budget réduit (1 main tirée, pas d'approfondissement, choix entre plans de tour complets : finir, tour glouton, garder ses Blockers, bluffer ; `--opponent-budget N` ajoute N-1 décisions coup par coup avant ce choix), puis glouton au-delà. Coût mesuré (500 parties, 10 cœurs) : Meta1/Meta2 2,6 s → 6,0 s, Meta3/Maelstrom 40 5,0 s → 8,4 s (≈ 1,7 à 2,3×).
+
+**Quick possibles.** Sans jamais lire la main cachée, l'IA estime la probabilité que l'adversaire ait un Quick payable : loi hypergéométrique sur les cartes non vues (main non révélée + pioche, le deck étant connu), en ne comptant que les Quick dont le coût tient dans le mana ouvert. Une attaque marginale (écart de puissance ≤ 3 face à la cible ou à un Blocker prêt) est pénalisée en proportion.
+
+**Bluff** (`--bluff on`). Coup « bluffer » : développer en gardant ouvert le coût du Quick le moins cher de son deck, sans attaquer, pour représenter un Quick ou un Blocker. Il est évalué comme les autres coups ; l'adversaire simulé est dissuadé (à tort ou à raison) par l'estimation ci-dessus. Test A/B (bluff pour le 1er siège seulement, miroirs, 1000 parties, graine 21) : Maelstrom 40 50,2 %, Maelstrom Meredith 49,6 %, Meta1 49,0 %, Meta2 52,3 %, Meta3 50,4 % ; moyenne 50,3 % ±1,4 %. L'intervalle descend sous 50 % : le gain n'est pas établi, le défaut est donc `off`.
+
+**Défense.** « Garder ses Blockers à la maison » est un coup candidat (tour glouton où les Blockers n'attaquent pas). La valeur défensive d'un Blocker prêt se calcule face aux attaquants adverses du tour suivant (Units en jeu qui pourront attaquer, plus le meilleur Unit avec Adrenaline ou qui attaque en arrivant, pondéré par sa probabilité d'être en main) et à la valeur des Gigs sauvés ; elle entre, avec un petit poids, dans l'évaluation et dans le coût d'une attaque du Blocker. Scénarios testés (`Tests/SimCoreTests/AITests.swift`) : l'IA garde un Blocker plutôt que de tuer un Unit sans risque quand l'adversaire menace ses Gigs, et attaque quand rien ne menace.
+
+Force mesurée (nouvelle politique sur le 1er siège, ancienne sur le 2e, miroirs, 1000 parties, graine 31) : Meta1 47,9 %, Meta2 48,1 %, Meta3 51,4 % (±3,1 %) : pas de gain significatif ; des poids de défense plus forts faisaient perdre 3 à 5 points.
+
 Pendant un combat, les deux joueurs peuvent utiliser leurs capacités `.fight` à tour de rôle (Floor It, Synapse Burnout, Dum Dum, Safety Override) tant que cela change l'issue.
 
 ## Limites
 
-Le simulateur reste une approximation : l'adversaire simulé joue de façon gloutonne dans la recherche, il n'y a pas encore de bluff, et un effet de carte mal codé fausse tous les résultats du deck. Les résultats servent à comparer des decks entre eux, pas à prédire un tournoi réel.
+Le simulateur reste une approximation : l'adversaire simulé n'a qu'un petit budget, le bluff et la défense restent heuristiques, et un effet de carte mal codé fausse tous les résultats du deck. Les résultats servent à comparer des decks entre eux, pas à prédire un tournoi réel.

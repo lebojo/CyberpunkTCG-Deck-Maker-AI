@@ -13,16 +13,14 @@ public struct Game: Sendable {
     let log: TraceLog?
     var tracing: Bool
     var skipReadyOnce = SidePair(false, false)
-    var searchPlayers: SidePair<Bool>
-    var searchConfig: SearchConfig
+    var policies: SidePair<Policy>
     let scopesInPlay: ModifierScopes
     let listenersInPlay: EventMask
     let abilityTimingsInPlay: AbilityTimings
 
-    public init(catalog: CardCatalog, decks: [DeckList], seed: UInt64, firstPlayer: Int, tracing: Bool, search: [Bool] = [false, false], config: SearchConfig = SearchConfig()) {
+    public init(catalog: CardCatalog, decks: [DeckList], seed: UInt64, firstPlayer: Int, tracing: Bool, policies: [Policy] = [.greedy, .greedy]) {
         self.catalog = catalog
-        searchPlayers = SidePair(search)
-        searchConfig = config
+        self.policies = SidePair(policies)
         rng = SplitMix64(seed: seed)
         active = firstPlayer
         self.tracing = tracing
@@ -58,8 +56,7 @@ public struct Game: Sendable {
 
     init(scenarioWith catalog: CardCatalog, legends: [[Int]], decks: [[Int]], seed: UInt64 = 1, active: Int = 0) {
         self.catalog = catalog
-        searchPlayers = SidePair(false, false)
-        searchConfig = SearchConfig()
+        policies = SidePair(.greedy, .greedy)
         rng = SplitMix64(seed: seed)
         self.active = active
         tracing = false
@@ -79,8 +76,7 @@ public struct Game: Sendable {
         active = 0
         tracing = false
         log = nil
-        searchPlayers = SidePair(false, false)
-        searchConfig = SearchConfig()
+        policies = SidePair(.greedy, .greedy)
         scopesInPlay = []
         listenersInPlay = []
         abilityTimingsInPlay = []

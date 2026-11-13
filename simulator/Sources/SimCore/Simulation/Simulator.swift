@@ -78,10 +78,10 @@ public struct DuelStats: Sendable {
 }
 
 public enum Simulator {
-    public static func playOne(catalog: CardCatalog, decks: [DeckList], index: Int, seed: UInt64, search: [Bool], config: SearchConfig = SearchConfig(), tracing: Bool = false) -> (summary: GameSummary, trace: [String]) {
+    public static func playOne(catalog: CardCatalog, decks: [DeckList], index: Int, seed: UInt64, policies: [Policy], tracing: Bool = false) -> (summary: GameSummary, trace: [String]) {
         let gameSeed = seed &+ UInt64(index) &* 0x9E37_79B9_7F4A_7C15
         let first = index % 2
-        var game = Game(catalog: catalog, decks: decks, seed: gameSeed, firstPlayer: first, tracing: tracing, search: search, config: config)
+        var game = Game(catalog: catalog, decks: decks, seed: gameSeed, firstPlayer: first, tracing: tracing, policies: policies)
         game.playGame()
         let summary: GameSummary
         switch game.outcome {
@@ -93,14 +93,14 @@ public enum Simulator {
         return (summary, game.traceLines)
     }
 
-    public static func winner(catalog: CardCatalog, decks: [DeckList], seed: UInt64, firstPlayer: Int, search: [Bool], config: SearchConfig = SearchConfig()) -> Int? {
-        var game = Game(catalog: catalog, decks: decks, seed: seed, firstPlayer: firstPlayer, tracing: false, search: search, config: config)
+    public static func winner(catalog: CardCatalog, decks: [DeckList], seed: UInt64, firstPlayer: Int, policies: [Policy]) -> Int? {
+        var game = Game(catalog: catalog, decks: decks, seed: seed, firstPlayer: firstPlayer, tracing: false, policies: policies)
         game.playGame()
         if case .win(let player, _) = game.outcome { return player }
         return nil
     }
 
-    public static func duel(catalog: CardCatalog, a: DeckList, b: DeckList, games: Int, seed: UInt64, workers: Int, search: [Bool], config: SearchConfig = SearchConfig(), progress: DuelProgress? = nil) async -> DuelStats {
+    public static func duel(catalog: CardCatalog, a: DeckList, b: DeckList, games: Int, seed: UInt64, workers: Int, policies: [Policy], progress: DuelProgress? = nil) async -> DuelStats {
         let chunk = max(1, games / (workers * 4))
         return await withTaskGroup(of: DuelStats.self) { group in
             var start = 0
@@ -111,7 +111,7 @@ public enum Simulator {
                     var stats = DuelStats()
                     var batch = GameBatch()
                     for index in range {
-                        let summary = playOne(catalog: local, decks: [a, b], index: index, seed: seed, search: search, config: config).summary
+                        let summary = playOne(catalog: local, decks: [a, b], index: index, seed: seed, policies: policies).summary
                         stats.add(summary)
                         batch.add(winner: summary.winner)
                         if batch.games >= 16 {
