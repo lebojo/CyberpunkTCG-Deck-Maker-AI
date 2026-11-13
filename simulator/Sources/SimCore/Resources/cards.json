@@ -1,0 +1,2848 @@
+{
+ "schemaVersion": 1,
+ "source": "https://api.netdeck.gg/api/cards/cyberpunk",
+ "cards": [
+  {
+   "key": "don-t-fear-the-reaper",
+   "name": "(Don't Fear) The Reaper",
+   "subname": null,
+   "canonicalName": "(Don't Fear) The Reaper",
+   "kind": "Program",
+   "color": "Green",
+   "cost": 7,
+   "power": null,
+   "ram": 3,
+   "sellable": true,
+   "classifications": [
+    "Samurai"
+   ],
+   "rulesText": "Spend all rival Units. Then, defeat a spent Unit.",
+   "printNumber": "098",
+   "legality": "legal"
+  },
+  {
+   "key": "6th-street-recruits",
+   "name": "6th Street Recruits",
+   "subname": null,
+   "canonicalName": "6th Street Recruits",
+   "kind": "Unit",
+   "color": "Red",
+   "cost": 4,
+   "power": 6,
+   "ram": 1,
+   "sellable": false,
+   "classifications": [
+    "6th Street",
+    "Ganger"
+   ],
+   "rulesText": "When a friendly Unit steals a d6, increase a Gig by up to 6.",
+   "printNumber": "006",
+   "legality": "legal"
+  },
+  {
+   "key": "adam-smasher-ender-of-legends",
+   "name": "Adam Smasher",
+   "subname": "Ender of Legends",
+   "canonicalName": "Adam Smasher — Ender of Legends",
+   "kind": "Legend",
+   "color": "Red",
+   "cost": 9,
+   "power": 9,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Arasaka",
+    "Merc"
+   ],
+   "rulesText": "{Go Solo} (Pay this Legend's cost to play it as a ready Unit. It can attack this turn. If it leaves the field, remove it from the game.)\n{Play} Defeat a rival Unit.",
+   "printNumber": "001",
+   "legality": "legal"
+  },
+  {
+   "key": "adam-smasher-metal-over-meat",
+   "name": "Adam Smasher",
+   "subname": "Metal Over Meat",
+   "canonicalName": "Adam Smasher — Metal Over Meat",
+   "kind": "Unit",
+   "color": "Yellow",
+   "cost": 9,
+   "power": 15,
+   "ram": 6,
+   "sellable": false,
+   "classifications": [
+    "Arasaka",
+    "Merc"
+   ],
+   "rulesText": "{Play} Defeat all other Units.",
+   "printNumber": "041",
+   "legality": "legal"
+  },
+  {
+   "key": "adrenaline-converter",
+   "name": "Adrenaline Converter",
+   "subname": null,
+   "canonicalName": "Adrenaline Converter",
+   "kind": "Gear",
+   "color": "Yellow",
+   "cost": 2,
+   "power": 3,
+   "ram": 4,
+   "sellable": true,
+   "classifications": [
+    "Cyberware",
+    "Medtech"
+   ],
+   "rulesText": "(Equip to a friendly Unit or face-up Legend.)\nIf a Rival controls at least 2 more Gigs than you, this Unit has {Adrenaline}. (This Unit can attack the turn it's played.)",
+   "printNumber": "059",
+   "legality": "legal"
+  },
+  {
+   "key": "afterparty-at-lizzie-s",
+   "name": "Afterparty at Lizzie's",
+   "subname": null,
+   "canonicalName": "Afterparty at Lizzie's",
+   "kind": "Program",
+   "color": "Yellow",
+   "cost": 1,
+   "power": null,
+   "ram": 1,
+   "sellable": true,
+   "classifications": [
+    "Braindance",
+    "Mox"
+   ],
+   "rulesText": "Adjust a Gig by up to 1. If you control 2 or more Gigs with different values, draw 1.",
+   "printNumber": "065",
+   "legality": "legal"
+  },
+  {
+   "key": "all-is-lost",
+   "name": "All is Lost",
+   "subname": null,
+   "canonicalName": "All is Lost",
+   "kind": "Program",
+   "color": "Red",
+   "cost": 1,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Zetatech"
+   ],
+   "rulesText": "Trash 3. Add a Unit from among them to your hand.",
+   "printNumber": "027",
+   "legality": "legal"
+  },
+  {
+   "key": "alt-cunningham-mother-of-daemons",
+   "name": "Alt Cunningham",
+   "subname": "Mother of Daemons",
+   "canonicalName": "Alt Cunningham — Mother of Daemons",
+   "kind": "Unit",
+   "color": "Yellow",
+   "cost": 7,
+   "power": 8,
+   "ram": 3,
+   "sellable": false,
+   "classifications": [
+    "Merc",
+    "Netrunner"
+   ],
+   "rulesText": "When a friendly equipped Unit or Legend is spent, draw 1.\nWhen a rival Unit would steal a Gig, you may discard 1 with cost equal to that Gig's value. If you do, the Gig isn't stolen.",
+   "printNumber": "042",
+   "legality": "legal"
+  },
+  {
+   "key": "alt-cunningham-soulkiller-architect",
+   "name": "Alt Cunningham",
+   "subname": "Soulkiller Architect",
+   "canonicalName": "Alt Cunningham — Soulkiller Architect",
+   "kind": "Legend",
+   "color": "Blue",
+   "cost": null,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Merc",
+    "Netrunner"
+   ],
+   "rulesText": "{Spend} Your next Program this turn plays for -1 €$ for each friendly min Gig, to a minimum of 1 €$.\n1 €$, {Spend} Play a Program from your trash. Bottom-deck it after you play it. (You still pay its cost.)",
+   "printNumber": "106",
+   "legality": "legal"
+  },
+  {
+   "key": "animals-wrecker",
+   "name": "Animals Wrecker",
+   "subname": null,
+   "canonicalName": "Animals Wrecker",
+   "kind": "Unit",
+   "color": "Red",
+   "cost": 6,
+   "power": 10,
+   "ram": 3,
+   "sellable": false,
+   "classifications": [
+    "Animal",
+    "Ganger"
+   ],
+   "rulesText": "[Flavour Text] Takes a lot of juice to break bones like they do.",
+   "printNumber": "007",
+   "legality": "legal"
+  },
+  {
+   "key": "appetite-for-destruction",
+   "name": "Appetite for Destruction",
+   "subname": null,
+   "canonicalName": "Appetite for Destruction",
+   "kind": "Program",
+   "color": "Red",
+   "cost": 3,
+   "power": null,
+   "ram": 4,
+   "sellable": true,
+   "classifications": [
+    "Ganger"
+   ],
+   "rulesText": "The next time a friendly Unit wins a fight by 3+ power this turn, it also steals a Gig.",
+   "printNumber": "028",
+   "legality": "legal"
+  },
+  {
+   "key": "arasaka-emergency-radioport",
+   "name": "Arasaka Emergency Radioport",
+   "subname": null,
+   "canonicalName": "Arasaka Emergency Radioport",
+   "kind": "Gear",
+   "color": "Red",
+   "cost": 2,
+   "power": 2,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Arasaka",
+    "Cyberware"
+   ],
+   "rulesText": "(Equip to a friendly Unit or face-up Legend.)\nWhen this Unit or Legend is spent, you may look at a friendly face-down Legend. If that Legend is ARASAKA or has {Go Solo}, you may Call it for free. (You may only Call a Legend once per turn.)",
+   "printNumber": "023",
+   "legality": "legal"
+  },
+  {
+   "key": "augmented-negotiators",
+   "name": "Augmented Negotiators",
+   "subname": null,
+   "canonicalName": "Augmented Negotiators",
+   "kind": "Unit",
+   "color": "Yellow",
+   "cost": 3,
+   "power": 2,
+   "ram": 1,
+   "sellable": false,
+   "classifications": [
+    "Arasaka",
+    "Corpo"
+   ],
+   "rulesText": "{Blocker} (You may spend this Unit to redirect a rival Unit's attack to it instead.)\nWhen this Unit uses {Blocker}, a Rival discards 1.",
+   "printNumber": "043",
+   "legality": "legal"
+  },
+  {
+   "key": "bonnie-and-clyde",
+   "name": "Bonnie and Clyde",
+   "subname": null,
+   "canonicalName": "Bonnie and Clyde",
+   "kind": "Program",
+   "color": "Red",
+   "cost": 3,
+   "power": null,
+   "ram": 3,
+   "sellable": true,
+   "classifications": [
+    "Braindance"
+   ],
+   "rulesText": "Defeat a rival Unit with power 4 or less. You may defeat 2 instead if a Rival controls at least 2 Gigs more than you.",
+   "printNumber": "029",
+   "legality": "legal"
+  },
+  {
+   "key": "bootleg-black-sapphire-show",
+   "name": "Bootleg Black Sapphire Show",
+   "subname": null,
+   "canonicalName": "Bootleg Black Sapphire Show",
+   "kind": "Program",
+   "color": "Yellow",
+   "cost": 5,
+   "power": null,
+   "ram": 4,
+   "sellable": true,
+   "classifications": [
+    "Braindance"
+   ],
+   "rulesText": "Sell the top card of your deck.\nIf you control a Gig with an even value and a Gig with an odd value, draw 2.",
+   "printNumber": "066",
+   "legality": "legal"
+  },
+  {
+   "key": "caliber-totentanz-s-top-dog",
+   "name": "Caliber",
+   "subname": "Totentanz's Top Dog",
+   "canonicalName": "Caliber — Totentanz's Top Dog",
+   "kind": "Unit",
+   "color": "Yellow",
+   "cost": 5,
+   "power": 5,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Ganger",
+    "Maelstrom"
+   ],
+   "rulesText": "{Play} Defeat a rival Unit with cost 2 or less.\n{Defeated} A Rival discards 1. If the card's cost equals the value of a friendly Gig, that Rival discards 1 more.",
+   "printNumber": "044",
+   "legality": "legal"
+  },
+  {
+   "key": "carnage-at-the-colosseum",
+   "name": "Carnage at the Colosseum",
+   "subname": null,
+   "canonicalName": "Carnage at the Colosseum",
+   "kind": "Program",
+   "color": "Red",
+   "cost": 6,
+   "power": null,
+   "ram": 3,
+   "sellable": true,
+   "classifications": [
+    "Braindance",
+    "Extreme"
+   ],
+   "rulesText": "Play this Program for -1 €$ for each friendly Gig with 8+ value, to a minimum of 1 €$.\nDefeat a rival Unit with less power than a friendly Unit.",
+   "printNumber": "030",
+   "legality": "legal"
+  },
+  {
+   "key": "chrome-fang",
+   "name": "Chrome Fang",
+   "subname": null,
+   "canonicalName": "Chrome Fang",
+   "kind": "Unit",
+   "color": "Red",
+   "cost": 5,
+   "power": 6,
+   "ram": 1,
+   "sellable": false,
+   "classifications": [
+    "Ganger",
+    "Netrunner",
+    "Tyger Claws"
+   ],
+   "rulesText": "{Play} Until your next turn, rival Units can't steal friendly Gigs with value higher than their power.",
+   "printNumber": "008",
+   "legality": "legal"
+  },
+  {
+   "key": "chrome-reverie",
+   "name": "Chrome Reverie",
+   "subname": null,
+   "canonicalName": "Chrome Reverie",
+   "kind": "Program",
+   "color": "Blue",
+   "cost": 3,
+   "power": null,
+   "ram": 1,
+   "sellable": true,
+   "classifications": [
+    "Braindance"
+   ],
+   "rulesText": "A rival Unit can't attack until your next turn. If you control a min Gig, you may Call a Legend for free. (You can only Call a Legend once per turn.)",
+   "printNumber": "131",
+   "legality": "legal"
+  },
+  {
+   "key": "corpo-security",
+   "name": "Corpo Security",
+   "subname": null,
+   "canonicalName": "Corpo Security",
+   "kind": "Unit",
+   "color": "Green",
+   "cost": 2,
+   "power": 2,
+   "ram": 1,
+   "sellable": false,
+   "classifications": [
+    "Corpo"
+   ],
+   "rulesText": "This Unit can't attack.\n{Blocker} (You may spend this Unit to redirect a rival Unit's attack to it instead.)",
+   "printNumber": "076",
+   "legality": "legal"
+  },
+  {
+   "key": "corporate-surveillance",
+   "name": "Corporate Surveillance",
+   "subname": null,
+   "canonicalName": "Corporate Surveillance",
+   "kind": "Program",
+   "color": "Green",
+   "cost": 2,
+   "power": null,
+   "ram": 1,
+   "sellable": true,
+   "classifications": [
+    "Corpo"
+   ],
+   "rulesText": "Spend a rival Unit with cost 4 or less.",
+   "printNumber": "097",
+   "legality": "legal"
+  },
+  {
+   "key": "cyberpsychosis",
+   "name": "Cyberpsychosis",
+   "subname": null,
+   "canonicalName": "Cyberpsychosis",
+   "kind": "Program",
+   "color": "Yellow",
+   "cost": 3,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Quickhack"
+   ],
+   "rulesText": "{Quick} Give an equipped Unit +3 power this turn for each of its equipped Gears. If that Unit steals or fights, defeat it at the end of this turn.",
+   "printNumber": "067",
+   "legality": "legal"
+  },
+  {
+   "key": "deadman-transmitter",
+   "name": "Deadman Transmitter",
+   "subname": null,
+   "canonicalName": "Deadman Transmitter",
+   "kind": "Gear",
+   "color": "Red",
+   "cost": 3,
+   "power": 1,
+   "ram": 3,
+   "sellable": true,
+   "classifications": [
+    "Cyberware",
+    "Trauma Team"
+   ],
+   "rulesText": "(Equip to a friendly Unit or face-up Legend.)\nIf this Unit would be defeated, defeat its \"DEADMAN TRANSMITTER\" instead.",
+   "printNumber": "024",
+   "legality": "legal"
+  },
+  {
+   "key": "delamain-cab",
+   "name": "Delamain Cab",
+   "subname": null,
+   "canonicalName": "Delamain Cab",
+   "kind": "Unit",
+   "color": "Blue",
+   "cost": 4,
+   "power": 4,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Vehicle"
+   ],
+   "rulesText": "At the end of your turn, if this Unit stole a Gig this turn, ready 1 Eddie.",
+   "printNumber": "112",
+   "legality": "legal"
+  },
+  {
+   "key": "delamain-rideshare-ai",
+   "name": "Delamain",
+   "subname": "Rideshare AI",
+   "canonicalName": "Delamain — Rideshare AI",
+   "kind": "Unit",
+   "color": "Blue",
+   "cost": 3,
+   "power": 0,
+   "ram": 3,
+   "sellable": false,
+   "classifications": [
+    "AI"
+   ],
+   "rulesText": "{Play} Draw 2.\n(Units with power 0 don't steal Gigs.)",
+   "printNumber": "111",
+   "legality": "legal"
+  },
+  {
+   "key": "detonate",
+   "name": "Detonate",
+   "subname": null,
+   "canonicalName": "Detonate",
+   "kind": "Program",
+   "color": "Red",
+   "cost": 1,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Quickhack"
+   ],
+   "rulesText": "{Quick} Defeat a rival Gear with power 2 or less.",
+   "printNumber": "031",
+   "legality": "legal"
+  },
+  {
+   "key": "dexter-deshawn-off-the-grid",
+   "name": "Dexter DeShawn",
+   "subname": "Off the Grid",
+   "canonicalName": "Dexter DeShawn — Off the Grid",
+   "kind": "Legend",
+   "color": "Red",
+   "cost": null,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Fixer"
+   ],
+   "rulesText": "{Call} Choose one effect.\nGive a friendly Unit +2 power this turn. // Draw 1.\n{Spend}: Increase a Gig by up to 2.",
+   "printNumber": "002",
+   "legality": "legal"
+  },
+  {
+   "key": "dexter-deshawn-one-last-chance",
+   "name": "Dexter DeShawn",
+   "subname": "One Last Chance",
+   "canonicalName": "Dexter DeShawn — One Last Chance",
+   "kind": "Unit",
+   "color": "Yellow",
+   "cost": 3,
+   "power": 4,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Fixer"
+   ],
+   "rulesText": "{Play} {Attack} Adjust a Gig by up to 1.\n{Defeated} If your ☆ (Street Cred) differs from a Rival's by 10+, draw 2.",
+   "printNumber": "002",
+   "legality": "legal"
+  },
+  {
+   "key": "dum-dum-maelstrom-triggerman",
+   "name": "Dum Dum",
+   "subname": "Maelstrom Triggerman",
+   "canonicalName": "Dum Dum — Maelstrom Triggerman",
+   "kind": "Legend",
+   "color": "Yellow",
+   "cost": null,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Ganger",
+    "Maelstrom"
+   ],
+   "rulesText": "{Call} You may defeat a friendly Gear. If you do, draw 2. Otherwise, draw 1.\n{Quick} 1 €$, {Spend} Give a friendly Unit +1 power this turn for each of its equipped Gear.",
+   "printNumber": "036",
+   "legality": "legal"
+  },
+  {
+   "key": "dying-night-v-s-pistol",
+   "name": "Dying Night",
+   "subname": "V's Pistol",
+   "canonicalName": "Dying Night — V's Pistol",
+   "kind": "Gear",
+   "color": "Blue",
+   "cost": 2,
+   "power": 2,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Merc",
+    "Weapon"
+   ],
+   "rulesText": "(Equip to a friendly Unit or face-up Legend.)\n{Attack} Decrease a Gig by up to 2. At the end of your turn, if this Unit is named \"V\", ready 2 Eddies.",
+   "printNumber": "128",
+   "legality": "legal"
+  },
+  {
+   "key": "el-sombrer-n-la-venganza-lenta",
+   "name": "El Sombrerón",
+   "subname": "La Venganza Lenta",
+   "canonicalName": "El Sombrerón — La Venganza Lenta",
+   "kind": "Unit",
+   "color": "Red",
+   "cost": 5,
+   "power": 4,
+   "ram": 4,
+   "sellable": false,
+   "classifications": [
+    "Ganger",
+    "Valentino"
+   ],
+   "rulesText": "{Attack} You may pay 2 €$. If you do, this Unit gains power equal to a friendly max Gig this turn.",
+   "printNumber": "009",
+   "legality": "legal"
+  },
+  {
+   "key": "emergency-atlus",
+   "name": "Emergency Atlus",
+   "subname": null,
+   "canonicalName": "Emergency Atlus",
+   "kind": "Unit",
+   "color": "Green",
+   "cost": 3,
+   "power": 4,
+   "ram": 1,
+   "sellable": false,
+   "classifications": [
+    "Trauma Team",
+    "Vehicle",
+    "Zetatech"
+   ],
+   "rulesText": "\"Grab the policyholder, leave the rest for the city meatwagon.\"",
+   "printNumber": "077",
+   "legality": "legal"
+  },
+  {
+   "key": "evelyn-parker-beautiful-enigma",
+   "name": "Evelyn Parker",
+   "subname": "Beautiful Enigma",
+   "canonicalName": "Evelyn Parker — Beautiful Enigma",
+   "kind": "Legend",
+   "color": "Blue",
+   "cost": null,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Doll"
+   ],
+   "rulesText": "When a friendly CORPO or GANGER Unit steals 1 or more Gigs, ready 1 Eddie.\n1 €$, {Spend} A rival Unit must attack next turn if it can.",
+   "printNumber": "107",
+   "legality": "legal"
+  },
+  {
+   "key": "evelyn-parker-scheming-siren",
+   "name": "Evelyn Parker",
+   "subname": "Scheming Siren",
+   "canonicalName": "Evelyn Parker — Scheming Siren",
+   "kind": "Unit",
+   "color": "Blue",
+   "cost": 2,
+   "power": 0,
+   "ram": 3,
+   "sellable": false,
+   "classifications": [
+    "Doll"
+   ],
+   "rulesText": "{Attack} Draw 1. Then, if you have more ☆ (Street Cred) than a Rival, discard 1.\n(Units with power 0 don't steal Gigs.)",
+   "printNumber": "113",
+   "legality": "legal"
+  },
+  {
+   "key": "field-operator",
+   "name": "Field Operator",
+   "subname": null,
+   "canonicalName": "Field Operator",
+   "kind": "Unit",
+   "color": "Green",
+   "cost": 3,
+   "power": 2,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Arasaka",
+    "Corpo",
+    "Techie"
+   ],
+   "rulesText": "{Play} If your ☆ (Street Cred) is an even number, draw 1.",
+   "printNumber": "078",
+   "legality": "legal"
+  },
+  {
+   "key": "floor-it",
+   "name": "Floor It",
+   "subname": null,
+   "canonicalName": "Floor It",
+   "kind": "Program",
+   "color": "Blue",
+   "cost": 1,
+   "power": null,
+   "ram": 1,
+   "sellable": true,
+   "classifications": [
+    "Merc",
+    "Quickhack"
+   ],
+   "rulesText": "{Quick} Give a rival Unit -1 power this turn. Draw 1.",
+   "printNumber": "132",
+   "legality": "legal"
+  },
+  {
+   "key": "fool-on-the-hill",
+   "name": "Fool on the Hill",
+   "subname": null,
+   "canonicalName": "Fool on the Hill",
+   "kind": "Program",
+   "color": "Green",
+   "cost": 2,
+   "power": null,
+   "ram": 3,
+   "sellable": true,
+   "classifications": [
+    "Merc"
+   ],
+   "rulesText": "Reveal the top 2 cards of your deck. A Rival chooses whether you add them to your hand or trash them. If you trash them, draw 2.",
+   "printNumber": "099",
+   "legality": "legal"
+  },
+  {
+   "key": "gilded-mat-n",
+   "name": "Gilded Matón",
+   "subname": null,
+   "canonicalName": "Gilded Matón",
+   "kind": "Unit",
+   "color": "Yellow",
+   "cost": 4,
+   "power": 3,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Ganger",
+    "Valentino"
+   ],
+   "rulesText": "{Play} You may defeat a friendly Gear. If you do, defeat a rival Unit with cost 3 or less.",
+   "printNumber": "045",
+   "legality": "legal"
+  },
+  {
+   "key": "gorilla-arms",
+   "name": "Gorilla Arms",
+   "subname": null,
+   "canonicalName": "Gorilla Arms",
+   "kind": "Gear",
+   "color": "Yellow",
+   "cost": 4,
+   "power": 3,
+   "ram": 3,
+   "sellable": true,
+   "classifications": [
+    "Cyberware"
+   ],
+   "rulesText": "(Equip to a friendly Unit or face-up Legend.)\nThe first time this Unit steals 1 or more Gigs each turn, steal a rival Gig with a value not shared by a friendly Gig.",
+   "printNumber": "060",
+   "legality": "legal"
+  },
+  {
+   "key": "goro-takemura-hands-unclean",
+   "name": "Goro Takemura",
+   "subname": "Hands Unclean",
+   "canonicalName": "Goro Takemura — Hands Unclean",
+   "kind": "Legend",
+   "color": "Green",
+   "cost": 5,
+   "power": 7,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Arasaka",
+    "Corpo"
+   ],
+   "rulesText": "{Go Solo} (Pay this Legend's cost to play it as a ready Unit. It can attack this turn. If it leaves the field, remove it from the game.)\n{Blocker} (You may spend this Unit to redirect a rival Unit's attack to it instead.)",
+   "printNumber": "012",
+   "legality": "legal"
+  },
+  {
+   "key": "goro-takemura-losing-his-way",
+   "name": "Goro Takemura",
+   "subname": "Losing His Way",
+   "canonicalName": "Goro Takemura — Losing His Way",
+   "kind": "Unit",
+   "color": "Green",
+   "cost": 4,
+   "power": 4,
+   "ram": 3,
+   "sellable": false,
+   "classifications": [
+    "Arasaka",
+    "Corpo"
+   ],
+   "rulesText": "{Attack} If all friendly Legends are face-up, this Unit has +5 power this turn.",
+   "printNumber": "017",
+   "legality": "legal"
+  },
+  {
+   "key": "goro-takemura-vengeful-bodyguard",
+   "name": "Goro Takemura",
+   "subname": "Vengeful Bodyguard",
+   "canonicalName": "Goro Takemura — Vengeful Bodyguard",
+   "kind": "Legend",
+   "color": "Green",
+   "cost": null,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Arasaka",
+    "Corpo"
+   ],
+   "rulesText": "{Quick} 1 €$, {Spend} Give a friendly Unit with cost 4 or less {Blocker} this turn. If you control a value-pair of Gigs, also give it +1 power this turn.\nWhen a friendly Unit uses {Blocker}, you may discard 1. If you do, draw 1.",
+   "printNumber": "071",
+   "legality": "legal"
+  },
+  {
+   "key": "gunpoint-diplomacy",
+   "name": "Gunpoint Diplomacy",
+   "subname": null,
+   "canonicalName": "Gunpoint Diplomacy",
+   "kind": "Program",
+   "color": "Red",
+   "cost": 4,
+   "power": null,
+   "ram": 3,
+   "sellable": true,
+   "classifications": [
+    "Ganger",
+    "Plan"
+   ],
+   "rulesText": "Give a friendly Unit these effects. If you have less ☆ (Street Cred) than a Rival, they instead choose one effect for you.\nThe next time this Unit attacks this turn, it may attack ready Units. // Give this Unit +3 power this turn.",
+   "printNumber": "032",
+   "legality": "legal"
+  },
+  {
+   "key": "hacked-corpo",
+   "name": "Hacked Corpo",
+   "subname": null,
+   "canonicalName": "Hacked Corpo",
+   "kind": "Unit",
+   "color": "Blue",
+   "cost": 4,
+   "power": 3,
+   "ram": 1,
+   "sellable": false,
+   "classifications": [
+    "AI",
+    "Corpo"
+   ],
+   "rulesText": "{Play} Trash 3. Add a Program from among them to your hand.",
+   "printNumber": "114",
+   "legality": "legal"
+  },
+  {
+   "key": "hanako-arasaka-daughter-of-the-emperor",
+   "name": "Hanako Arasaka",
+   "subname": "Daughter of the Emperor",
+   "canonicalName": "Hanako Arasaka — Daughter of the Emperor",
+   "kind": "Legend",
+   "color": "Green",
+   "cost": null,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Arasaka",
+    "Corpo",
+    "Netrunner"
+   ],
+   "rulesText": "{Spend} Swap a friendly Gig with a rival Gig.\nAt the start of your turn, draw 1 for each friendly value-pair of Gigs.",
+   "printNumber": "072",
+   "legality": "legal"
+  },
+  {
+   "key": "hanako-arasaka-in-a-gilded-cage",
+   "name": "Hanako Arasaka",
+   "subname": "In a Gilded Cage",
+   "canonicalName": "Hanako Arasaka — In a Gilded Cage",
+   "kind": "Unit",
+   "color": "Yellow",
+   "cost": 4,
+   "power": 1,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Arasaka",
+    "Corpo",
+    "Netrunner"
+   ],
+   "rulesText": "{Play} Search the top 4 cards of your deck. Reveal any number of cards with cost equal to any friendly Gig values and add them to your hand. Bottom-deck the rest.",
+   "printNumber": "046",
+   "legality": "legal"
+  },
+  {
+   "key": "heywood-ripperdoc",
+   "name": "Heywood Ripperdoc",
+   "subname": null,
+   "canonicalName": "Heywood Ripperdoc",
+   "kind": "Unit",
+   "color": "Yellow",
+   "cost": 6,
+   "power": 8,
+   "ram": 1,
+   "sellable": false,
+   "classifications": [
+    "Ripperdoc"
+   ],
+   "rulesText": "{Play} You may defeat a Gear. If its cost equals the value of a friendly Gig, draw 1.",
+   "printNumber": "047",
+   "legality": "legal"
+  },
+  {
+   "key": "industrial-assembly",
+   "name": "Industrial Assembly",
+   "subname": null,
+   "canonicalName": "Industrial Assembly",
+   "kind": "Program",
+   "color": "Red",
+   "cost": 1,
+   "power": null,
+   "ram": 1,
+   "sellable": true,
+   "classifications": [
+    "Arasaka",
+    "Braindance"
+   ],
+   "rulesText": "Increase a Gig by up to 4. If you control a Gig with 8+ value, draw 1.",
+   "printNumber": "033",
+   "legality": "legal"
+  },
+  {
+   "key": "jacked-in-voodoo-boy",
+   "name": "Jacked-In Voodoo Boy",
+   "subname": null,
+   "canonicalName": "Jacked-In Voodoo Boy",
+   "kind": "Unit",
+   "color": "Blue",
+   "cost": 2,
+   "power": 2,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Netrunner",
+    "Voodoo Boys"
+   ],
+   "rulesText": "This Unit can't attack unless you played a Program this turn.",
+   "printNumber": "115",
+   "legality": "legal"
+  },
+  {
+   "key": "jackie-welles-mama-s-favorite",
+   "name": "Jackie Welles",
+   "subname": "Mama's Favorite",
+   "canonicalName": "Jackie Welles — Mama's Favorite",
+   "kind": "Legend",
+   "color": "Green",
+   "cost": 6,
+   "power": 8,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Merc"
+   ],
+   "rulesText": "{Go Solo} (Pay this Legend's cost to play it as a ready Unit. It can attack this turn. If it leaves the field, remove it from the game.)\nIf a friendly Unit would be defeated, you may pay 1 €$ to defeat this Legend instead. (Remove it from the game.)",
+   "printNumber": "073",
+   "legality": "legal"
+  },
+  {
+   "key": "jackie-welles-pour-one-out-for-me",
+   "name": "Jackie Welles",
+   "subname": "Pour One Out For Me",
+   "canonicalName": "Jackie Welles — Pour One Out For Me",
+   "kind": "Legend",
+   "color": "Blue",
+   "cost": null,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Merc"
+   ],
+   "rulesText": "The first time you play a Blue Unit or Blue Gear each turn, you may decrease a friendly Gig by up to 2. If it becomes a min Gig, draw 1.",
+   "printNumber": "011",
+   "legality": "legal"
+  },
+  {
+   "key": "jackie-welles-ride-or-die-choom",
+   "name": "Jackie Welles",
+   "subname": "Ride or Die Choom",
+   "canonicalName": "Jackie Welles — Ride or Die Choom",
+   "kind": "Unit",
+   "color": "Yellow",
+   "cost": 6,
+   "power": 8,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Merc",
+    "Valentino"
+   ],
+   "rulesText": "{Attack} Give this Unit +2 power this turn for each friendly Gig with an even value.\n{Defeated} Draw 1 for each friendly Gig with an odd value.",
+   "printNumber": "048",
+   "legality": "legal"
+  },
+  {
+   "key": "japantown-jonin",
+   "name": "Japantown Jonin",
+   "subname": null,
+   "canonicalName": "Japantown Jonin",
+   "kind": "Unit",
+   "color": "Red",
+   "cost": 2,
+   "power": 0,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Tyger Claws"
+   ],
+   "rulesText": "{Play} Give a friendly Unit +2 power this turn.\n(Units with power 0 don't steal Gigs.)",
+   "printNumber": "010",
+   "legality": "legal"
+  },
+  {
+   "key": "johnny-silverhand-never-stop-fighting",
+   "name": "Johnny Silverhand",
+   "subname": "Never Stop Fighting",
+   "canonicalName": "Johnny Silverhand — Never Stop Fighting",
+   "kind": "Unit",
+   "color": "Red",
+   "cost": 6,
+   "power": 8,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Merc",
+    "Rocker",
+    "Samurai"
+   ],
+   "rulesText": "The first time this Unit wins a fight each turn, ready it.\nThis Unit wins all fights against CORPO Units.",
+   "printNumber": "011",
+   "legality": "legal"
+  },
+  {
+   "key": "johnny-silverhand-rocking-renegade",
+   "name": "Johnny Silverhand",
+   "subname": "Rocking Renegade",
+   "canonicalName": "Johnny Silverhand — Rocking Renegade",
+   "kind": "Legend",
+   "color": "Red",
+   "cost": null,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Merc",
+    "Rocker",
+    "Samurai"
+   ],
+   "rulesText": "2 €$, {Spend} A friendly Unit can attack spent rival Units the turn it's played. If it's a ROCKER Unit, also give it +2 power this turn. This effect costs -1 €$ for each friendly Gig with 8+ value.",
+   "printNumber": "003",
+   "legality": "legal"
+  },
+  {
+   "key": "judy-lvarez-braindance-maestro",
+   "name": "Judy Álvarez",
+   "subname": "Braindance Maestro",
+   "canonicalName": "Judy Álvarez — Braindance Maestro",
+   "kind": "Legend",
+   "color": "Blue",
+   "cost": null,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Ganger",
+    "Mox",
+    "Techie"
+   ],
+   "rulesText": "When you play a BRAINDANCE Program, give a friendly Unit +1 power this turn.\n{Spend} Trash the top card of your deck. If it's a Program, you may add it to your hand.",
+   "printNumber": "108",
+   "legality": "legal"
+  },
+  {
+   "key": "judy-lvarez-nothing-to-doubt",
+   "name": "Judy Álvarez",
+   "subname": "Nothing to Doubt",
+   "canonicalName": "Judy Álvarez — Nothing to Doubt",
+   "kind": "Unit",
+   "color": "Blue",
+   "cost": 6,
+   "power": 6,
+   "ram": 5,
+   "sellable": false,
+   "classifications": [
+    "Ganger",
+    "Mox",
+    "Techie"
+   ],
+   "rulesText": "1 €$, {Spend} Reveal the top card of your deck. You may play it for free. Otherwise, add it to your hand.",
+   "printNumber": "116",
+   "legality": "legal"
+  },
+  {
+   "key": "kerry-eurodyne-axe-attitude-audience",
+   "name": "Kerry Eurodyne",
+   "subname": "Axe, Attitude, Audience",
+   "canonicalName": "Kerry Eurodyne — Axe, Attitude, Audience",
+   "kind": "Legend",
+   "color": "Yellow",
+   "cost": null,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Rocker",
+    "Samurai"
+   ],
+   "rulesText": "When you roll in a Gig from your fixer area, you may ignore the result and reroll it once.\nWhen you roll a min or max value on a Gig, draw 1. If it's a d20, draw 3 instead.",
+   "printNumber": "037",
+   "legality": "legal"
+  },
+  {
+   "key": "kerry-eurodyne-the-last-rockerboy",
+   "name": "Kerry Eurodyne",
+   "subname": "The Last Rockerboy",
+   "canonicalName": "Kerry Eurodyne — The Last Rockerboy",
+   "kind": "Unit",
+   "color": "Red",
+   "cost": 4,
+   "power": 5,
+   "ram": 1,
+   "sellable": false,
+   "classifications": [
+    "Rocker",
+    "Samurai"
+   ],
+   "rulesText": "{Spend} If you control a Gig with 8+ value, draw 2.",
+   "printNumber": "012",
+   "legality": "legal"
+  },
+  {
+   "key": "kiroshi-optics",
+   "name": "Kiroshi Optics",
+   "subname": null,
+   "canonicalName": "Kiroshi Optics",
+   "kind": "Gear",
+   "color": "Yellow",
+   "cost": 1,
+   "power": 1,
+   "ram": 1,
+   "sellable": true,
+   "classifications": [
+    "Cyberware"
+   ],
+   "rulesText": "(Equip to a friendly Unit or face-up Legend.)\n{Attack} Look at a friendly face-down Legend. (Don't reveal it.)",
+   "printNumber": "061",
+   "legality": "legal"
+  },
+  {
+   "key": "la-llorona-ghost-of-the-past",
+   "name": "La Llorona",
+   "subname": "Ghost of the Past",
+   "canonicalName": "La Llorona — Ghost of the Past",
+   "kind": "Unit",
+   "color": "Red",
+   "cost": 3,
+   "power": 3,
+   "ram": 1,
+   "sellable": false,
+   "classifications": [
+    "Ganger",
+    "Valentino"
+   ],
+   "rulesText": "{Blocker} (You may spend this Unit to redirect a rival Unit's attack to it instead.)\nWhen this Unit uses {Blocker}, increase a Gig by up to 3.",
+   "printNumber": "013",
+   "legality": "legal"
+  },
+  {
+   "key": "les-l-mens",
+   "name": "Les Élémens",
+   "subname": null,
+   "canonicalName": "Les Élémens",
+   "kind": "Program",
+   "color": "Blue",
+   "cost": 5,
+   "power": null,
+   "ram": 4,
+   "sellable": true,
+   "classifications": [
+    "Corpo"
+   ],
+   "rulesText": "Bottom-deck a Rival's lowest-power Unit. (If there are multiple, choose 1.)",
+   "printNumber": "133",
+   "legality": "legal"
+  },
+  {
+   "key": "live-with-the-aftermath",
+   "name": "Live with the Aftermath",
+   "subname": null,
+   "canonicalName": "Live with the Aftermath",
+   "kind": "Program",
+   "color": "Yellow",
+   "cost": 3,
+   "power": null,
+   "ram": 3,
+   "sellable": true,
+   "classifications": [
+    "Plan"
+   ],
+   "rulesText": "Each player defeats one of their Units.",
+   "printNumber": "068",
+   "legality": "legal"
+  },
+  {
+   "key": "lizzy-wizzy-delicate-weapon",
+   "name": "Lizzy Wizzy",
+   "subname": "Delicate Weapon",
+   "canonicalName": "Lizzy Wizzy — Delicate Weapon",
+   "kind": "Unit",
+   "color": "Blue",
+   "cost": 5,
+   "power": 2,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Rocker"
+   ],
+   "rulesText": "{Play} You may play a Program with cost 3 or less from your hand or trash for free. Bottom-deck it after you play it.\n{Blocker}",
+   "printNumber": "117",
+   "legality": "legal"
+  },
+  {
+   "key": "lucyna-kushinada-fresh-beginnings",
+   "name": "Lucyna Kushinada",
+   "subname": "Fresh Beginnings",
+   "canonicalName": "Lucyna Kushinada — Fresh Beginnings",
+   "kind": "Legend",
+   "color": "Blue",
+   "cost": null,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Maine's Crew",
+    "Merc",
+    "Netrunner"
+   ],
+   "rulesText": "{Call}: Draw 1. If you control 2 or more min Gigs, draw 2 instead.",
+   "printNumber": "004a",
+   "legality": "legal"
+  },
+  {
+   "key": "mt0d12-flathead",
+   "name": "MT0D12 Flathead",
+   "subname": null,
+   "canonicalName": "MT0D12 Flathead",
+   "kind": "Unit",
+   "color": "Blue",
+   "cost": 5,
+   "power": 7,
+   "ram": 3,
+   "sellable": true,
+   "classifications": [
+    "Drone",
+    "Militech"
+   ],
+   "rulesText": "If you have less ☆ (Street Cred) than a Rival, this Unit can't be blocked.",
+   "printNumber": "015",
+   "legality": "legal"
+  },
+  {
+   "key": "maelstrom-goons",
+   "name": "Maelstrom Goons",
+   "subname": null,
+   "canonicalName": "Maelstrom Goons",
+   "kind": "Unit",
+   "color": "Yellow",
+   "cost": 3,
+   "power": 3,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Ganger",
+    "Maelstrom"
+   ],
+   "rulesText": "When this Unit steals a Gig, if it's equipped, a Rival discards 1.",
+   "printNumber": "049",
+   "legality": "legal"
+  },
+  {
+   "key": "maelstrom-zealots",
+   "name": "Maelstrom Zealots",
+   "subname": null,
+   "canonicalName": "Maelstrom Zealots",
+   "kind": "Unit",
+   "color": "Green",
+   "cost": 4,
+   "power": 0,
+   "ram": 1,
+   "sellable": false,
+   "classifications": [
+    "Ganger",
+    "Maelstrom"
+   ],
+   "rulesText": "When this Unit loses a fight, defeat the opposing rival Unit.\n(Units with power 0 don't steal Gigs.)",
+   "printNumber": "079",
+   "legality": "legal"
+  },
+  {
+   "key": "maman-brigitte-spirit-of-death",
+   "name": "Maman Brigitte",
+   "subname": "Spirit of Death",
+   "canonicalName": "Maman Brigitte — Spirit of Death",
+   "kind": "Unit",
+   "color": "Blue",
+   "cost": 5,
+   "power": 3,
+   "ram": 4,
+   "sellable": false,
+   "classifications": [
+    "Mystic",
+    "Netrunner",
+    "Voodoo Boys"
+   ],
+   "rulesText": "{Play} You may discard 2 Programs. If you do, bottom-deck a rival unequipped Unit.",
+   "printNumber": "118",
+   "legality": "legal"
+  },
+  {
+   "key": "mandibular-upgrade",
+   "name": "Mandibular Upgrade",
+   "subname": null,
+   "canonicalName": "Mandibular Upgrade",
+   "kind": "Gear",
+   "color": "Yellow",
+   "cost": 1,
+   "power": 0,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Cyberware"
+   ],
+   "rulesText": "(Equip to a friendly Unit or face-up Legend.)\n{Blocker} (You may spend this Unit to redirect a rival Unit's attack to it instead.)",
+   "printNumber": "062",
+   "legality": "legal"
+  },
+  {
+   "key": "mantis-blades",
+   "name": "Mantis Blades",
+   "subname": null,
+   "canonicalName": "Mantis Blades",
+   "kind": "Gear",
+   "color": "Red",
+   "cost": 1,
+   "power": 2,
+   "ram": 1,
+   "sellable": true,
+   "classifications": [
+    "Cyberware"
+   ],
+   "rulesText": "(Equip to a friendly Unit or face-up Legend.)\n\"One cut, one kill.\"",
+   "printNumber": "025",
+   "legality": "legal"
+  },
+  {
+   "key": "maxtac-av",
+   "name": "MaxTac AV",
+   "subname": null,
+   "canonicalName": "MaxTac AV",
+   "kind": "Unit",
+   "color": "Green",
+   "cost": 5,
+   "power": 8,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "NCPD",
+    "Vehicle"
+   ],
+   "rulesText": "{Play} You may swap a friendly Gig with a rival Gig.",
+   "printNumber": "080",
+   "legality": "legal"
+  },
+  {
+   "key": "maxtac-heavy",
+   "name": "MaxTac Heavy",
+   "subname": null,
+   "canonicalName": "MaxTac Heavy",
+   "kind": "Unit",
+   "color": "Green",
+   "cost": 7,
+   "power": 8,
+   "ram": 3,
+   "sellable": false,
+   "classifications": [
+    "NCPD"
+   ],
+   "rulesText": "Play this Unit for -1 €$ for each of a Rival’s Units, to a minimum of 1 €$.",
+   "printNumber": "081",
+   "legality": "legal"
+  },
+  {
+   "key": "maxtac-squadron",
+   "name": "MaxTac Squadron",
+   "subname": null,
+   "canonicalName": "MaxTac Squadron",
+   "kind": "Unit",
+   "color": "Green",
+   "cost": 3,
+   "power": 4,
+   "ram": 3,
+   "sellable": false,
+   "classifications": [
+    "NCPD"
+   ],
+   "rulesText": "At the end of your turn, if this Unit is spent, ready a friendly face-up Legend.",
+   "printNumber": "082",
+   "legality": "legal"
+  },
+  {
+   "key": "maxtac-suppression-team",
+   "name": "MaxTac Suppression Team",
+   "subname": null,
+   "canonicalName": "MaxTac Suppression Team",
+   "kind": "Unit",
+   "color": "Yellow",
+   "cost": 5,
+   "power": 7,
+   "ram": 1,
+   "sellable": false,
+   "classifications": [
+    "NCPD"
+   ],
+   "rulesText": "Rival Units can't attack the turn they're played.",
+   "printNumber": "050",
+   "legality": "legal"
+  },
+  {
+   "key": "memory-relapse",
+   "name": "Memory Relapse",
+   "subname": null,
+   "canonicalName": "Memory Relapse",
+   "kind": "Program",
+   "color": "Green",
+   "cost": 4,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Braindance"
+   ],
+   "rulesText": "Spend a rival Unit. It can't ready until your next turn. If your ☆ (Street Cred) is an even number, draw 1.",
+   "printNumber": "100",
+   "legality": "legal"
+  },
+  {
+   "key": "meredith-stout-stone-cold-corpo",
+   "name": "Meredith Stout",
+   "subname": "Stone Cold Corpo",
+   "canonicalName": "Meredith Stout — Stone Cold Corpo",
+   "kind": "Unit",
+   "color": "Red",
+   "cost": 4,
+   "power": 5,
+   "ram": 1,
+   "sellable": false,
+   "classifications": [
+    "Corpo",
+    "Militech"
+   ],
+   "rulesText": "{Blocker}\nThis Unit has +2 power while fighting a Legend.\nWhen a Rival adjusts or swaps 1 or more friendly Gigs, you may add a card from your trash to your hand.",
+   "printNumber": "014",
+   "legality": "legal"
+  },
+  {
+   "key": "minotaur",
+   "name": "Minotaur",
+   "subname": null,
+   "canonicalName": "Minotaur",
+   "kind": "Unit",
+   "color": "Red",
+   "cost": 7,
+   "power": 9,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Arasaka",
+    "Drone",
+    "Militech"
+   ],
+   "rulesText": "{Play} If you have more ☆ (Street Cred) than a Rival, defeat a rival Unit with power 5 or less.",
+   "printNumber": "003",
+   "legality": "legal"
+  },
+  {
+   "key": "misty-olszewski-mender-of-broken-spirits",
+   "name": "Misty Olszewski",
+   "subname": "Mender of Broken Spirits",
+   "canonicalName": "Misty Olszewski — Mender of Broken Spirits",
+   "kind": "Unit",
+   "color": "Blue",
+   "cost": 3,
+   "power": 0,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Mystic"
+   ],
+   "rulesText": "This Unit can't attack.\nAt the end of your turn, choose a card type. Then, reveal the top card of your deck. If it's the chosen type, add it to your hand and ready 1 Eddie. Otherwise, trash it.\n(Unit, Gear, and Program are card types.)",
+   "printNumber": "119",
+   "legality": "legal"
+  },
+  {
+   "key": "modded-kusanagi",
+   "name": "Modded Kusanagi",
+   "subname": null,
+   "canonicalName": "Modded Kusanagi",
+   "kind": "Unit",
+   "color": "Blue",
+   "cost": 6,
+   "power": 8,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Tyger Claws",
+    "Vehicle"
+   ],
+   "rulesText": "{Adrenaline} (This Unit can attack the turn it's played.)\nAt the end of your turn, return this Unit to its owner's hand.",
+   "printNumber": "120",
+   "legality": "legal"
+  },
+  {
+   "key": "modded-muramasa",
+   "name": "Modded Muramasa",
+   "subname": null,
+   "canonicalName": "Modded Muramasa",
+   "kind": "Unit",
+   "color": "Blue",
+   "cost": 5,
+   "power": 4,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Vehicle"
+   ],
+   "rulesText": "At the end of your turn, if you have less ☆ (Street Cred) than a Rival, ready this Unit.",
+   "printNumber": "121",
+   "legality": "legal"
+  },
+  {
+   "key": "mox-inciters",
+   "name": "Mox Inciters",
+   "subname": null,
+   "canonicalName": "Mox Inciters",
+   "kind": "Unit",
+   "color": "Blue",
+   "cost": 3,
+   "power": 2,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Ganger",
+    "Mox"
+   ],
+   "rulesText": "{Play} A rival Unit must attack next turn if it can.\n{Blocker} (You may spend this Unit to redirect a rival Unit's attack to it instead.)",
+   "printNumber": "122",
+   "legality": "legal"
+  },
+  {
+   "key": "muamar-reyes-el-capit-n",
+   "name": "Muamar Reyes",
+   "subname": "El Capitán",
+   "canonicalName": "Muamar Reyes — El Capitán",
+   "kind": "Legend",
+   "color": "Yellow",
+   "cost": null,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Fixer"
+   ],
+   "rulesText": "{Call} Choose one effect.\nA friendly Unit can't be defeated in a fight this turn. // Draw 1.\n{Spend} Adjust a Gig by 1.",
+   "printNumber": "038",
+   "legality": "legal"
+  },
+  {
+   "key": "nadia-fighting-through-grief",
+   "name": "Nadia",
+   "subname": "Fighting Through Grief",
+   "canonicalName": "Nadia — Fighting Through Grief",
+   "kind": "Unit",
+   "color": "Green",
+   "cost": 6,
+   "power": 8,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Medtech",
+    "Trauma Team"
+   ],
+   "rulesText": "If a Rival controls more Gigs than you, this Unit can attack their Gig area the turn it's played.",
+   "printNumber": "083",
+   "legality": "legal"
+  },
+  {
+   "key": "netwatch-netdriver",
+   "name": "NetWatch Netdriver",
+   "subname": null,
+   "canonicalName": "NetWatch Netdriver",
+   "kind": "Gear",
+   "color": "Blue",
+   "cost": 3,
+   "power": 2,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Cyberware",
+    "Netrunner",
+    "Netwatch"
+   ],
+   "rulesText": "(Equip to a friendly Unit or face-up Legend.)\nWhen this Unit or Legend is spent, draw 1.",
+   "printNumber": "129",
+   "legality": "legal"
+  },
+  {
+   "key": "nocturne-op55-n1",
+   "name": "Nocturne OP55 N1",
+   "subname": null,
+   "canonicalName": "Nocturne OP55 N1",
+   "kind": "Program",
+   "color": "Blue",
+   "cost": 3,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Arasaka",
+    "Plan"
+   ],
+   "rulesText": "If your fixer area is empty, play this Program for 1 €$. Choose one effect.\nDraw 2. // A Unit can't attack until your next turn. // A friendly Legend may use {Go Solo} for -2 €$ this turn, to a minimum of 1 €$.",
+   "printNumber": "134",
+   "legality": "legal"
+  },
+  {
+   "key": "octant",
+   "name": "Octant",
+   "subname": null,
+   "canonicalName": "Octant",
+   "kind": "Unit",
+   "color": "Red",
+   "cost": 7,
+   "power": 8,
+   "ram": 4,
+   "sellable": false,
+   "classifications": [
+    "Drone",
+    "Militech",
+    "Zetatech"
+   ],
+   "rulesText": "Play this Unit for -1 €$ for each friendly Gig with 8+ value, to a minimum of 1 €$.",
+   "printNumber": "015",
+   "legality": "legal"
+  },
+  {
+   "key": "offduty-malfini",
+   "name": "Offduty Malfini",
+   "subname": null,
+   "canonicalName": "Offduty Malfini",
+   "kind": "Unit",
+   "color": "Yellow",
+   "cost": 4,
+   "power": 5,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Ganger",
+    "Voodoo Boys"
+   ],
+   "rulesText": "{Play} Spend this Unit and a rival Unit.",
+   "printNumber": "051",
+   "legality": "legal"
+  },
+  {
+   "key": "over-the-edge",
+   "name": "Over the Edge",
+   "subname": null,
+   "canonicalName": "Over the Edge",
+   "kind": "Program",
+   "color": "Red",
+   "cost": 3,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Merc"
+   ],
+   "rulesText": "Defeat a Unit with power equal to or less than the value of a friendly d20.",
+   "printNumber": "034",
+   "legality": "legal"
+  },
+  {
+   "key": "overwatch-panam-s-gift",
+   "name": "Overwatch",
+   "subname": "Panam's Gift",
+   "canonicalName": "Overwatch — Panam's Gift",
+   "kind": "Gear",
+   "color": "Green",
+   "cost": 4,
+   "power": 4,
+   "ram": 4,
+   "sellable": true,
+   "classifications": [
+    "Weapon"
+   ],
+   "rulesText": "(Equip to a friendly Unit or face-up Legend.)\n{Quick} 1 €$, {Spend} Discard 1. Defeat a spent rival Unit with cost equal to or less than the discarded card's cost.",
+   "printNumber": "093",
+   "legality": "legal"
+  },
+  {
+   "key": "pacifica-netrunner",
+   "name": "Pacifica Netrunner",
+   "subname": null,
+   "canonicalName": "Pacifica Netrunner",
+   "kind": "Unit",
+   "color": "Green",
+   "cost": 4,
+   "power": 1,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Netrunner"
+   ],
+   "rulesText": "{Play} If your ☆ (Street Cred) is an even number, a rival Unit can't ready until your next turn.",
+   "printNumber": "084",
+   "legality": "legal"
+  },
+  {
+   "key": "padre-man-of-the-cross",
+   "name": "Padre",
+   "subname": "Man of the Cross",
+   "canonicalName": "Padre — Man of the Cross",
+   "kind": "Legend",
+   "color": "Green",
+   "cost": null,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Fixer",
+    "Ganger",
+    "Valentino"
+   ],
+   "rulesText": "{Call} Choose one effect.\nSpend a rival Unit. // Draw 1.\n{Spend} Set a player's Gig to the same value as another player's Gig.",
+   "printNumber": "074",
+   "legality": "legal"
+  },
+  {
+   "key": "panam-palmer-nomad-cavalry",
+   "name": "Panam Palmer",
+   "subname": "Nomad Cavalry",
+   "canonicalName": "Panam Palmer — Nomad Cavalry",
+   "kind": "Legend",
+   "color": "Green",
+   "cost": null,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Aldecaldo",
+    "Merc",
+    "Nomad"
+   ],
+   "rulesText": "2 €$, {Spend} Move a Gear from this Legend to an unequipped friendly Unit. If you do, ready that Unit.\nAt the end of your turn, if 5 or more friendly Units and/or Legends are equipped, ready them.",
+   "printNumber": "075",
+   "legality": "legal"
+  },
+  {
+   "key": "panam-palmer-strength-through-family",
+   "name": "Panam Palmer",
+   "subname": "Strength Through Family",
+   "canonicalName": "Panam Palmer — Strength Through Family",
+   "kind": "Unit",
+   "color": "Green",
+   "cost": 6,
+   "power": 6,
+   "ram": 4,
+   "sellable": false,
+   "classifications": [
+    "Aldecaldo",
+    "Merc",
+    "Nomad"
+   ],
+   "rulesText": "During your turn, you may Call a Legend for free.\n{Attack} Discard 1. If you do, draw 1 for each friendly face-up Legend.",
+   "printNumber": "085",
+   "legality": "legal"
+  },
+  {
+   "key": "peace-offering",
+   "name": "Peace Offering",
+   "subname": null,
+   "canonicalName": "Peace Offering",
+   "kind": "Program",
+   "color": "Green",
+   "cost": 1,
+   "power": null,
+   "ram": 1,
+   "sellable": true,
+   "classifications": [
+    "Braindance"
+   ],
+   "rulesText": "You may set a Gig's value to the value of another Gig. Then, if you control a value-pair, draw 1.",
+   "printNumber": "101",
+   "legality": "legal"
+  },
+  {
+   "key": "pepe-najarro-working-doubles",
+   "name": "Pepe Najarro",
+   "subname": "Working Doubles",
+   "canonicalName": "Pepe Najarro — Working Doubles",
+   "kind": "Unit",
+   "color": "Green",
+   "cost": 4,
+   "power": 6,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Valentino"
+   ],
+   "rulesText": "{Attack} If you control a value-pair of Gigs, ready up to 2 MERC Legends in your Legends area.",
+   "printNumber": "086",
+   "legality": "legal"
+  },
+  {
+   "key": "placide-voodoo-sentinel",
+   "name": "Placide",
+   "subname": "Voodoo Sentinel",
+   "canonicalName": "Placide — Voodoo Sentinel",
+   "kind": "Unit",
+   "color": "Blue",
+   "cost": 8,
+   "power": 10,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Ganger",
+    "Netrunner",
+    "Voodoo Boys"
+   ],
+   "rulesText": "{Play} {Attack} You may discard 1 Program. If you do, bottom-deck a rival Unit.",
+   "printNumber": "123",
+   "legality": "legal"
+  },
+  {
+   "key": "psycho-squad",
+   "name": "Psycho Squad",
+   "subname": null,
+   "canonicalName": "Psycho Squad",
+   "kind": "Unit",
+   "color": "Blue",
+   "cost": 4,
+   "power": 6,
+   "ram": 1,
+   "sellable": false,
+   "classifications": [
+    "NCPD"
+   ],
+   "rulesText": "[Flavour] Their protocol stops at “shoot first.”",
+   "printNumber": "124",
+   "legality": "legal"
+  },
+  {
+   "key": "pyramid-song",
+   "name": "Pyramid Song",
+   "subname": null,
+   "canonicalName": "Pyramid Song",
+   "kind": "Program",
+   "color": "Blue",
+   "cost": 3,
+   "power": null,
+   "ram": 3,
+   "sellable": true,
+   "classifications": [
+    "Braindance"
+   ],
+   "rulesText": "Choose one effect. If a friendly d4 is a min Gig, choose both instead.\nGive a rival Unit -4 power this turn. // Bottom-deck a rival Unit with power 0.",
+   "printNumber": "135",
+   "legality": "legal"
+  },
+  {
+   "key": "rebecca-having-a-moment",
+   "name": "Rebecca",
+   "subname": "Having a Moment",
+   "canonicalName": "Rebecca — Having a Moment",
+   "kind": "Legend",
+   "color": "Red",
+   "cost": null,
+   "power": null,
+   "ram": null,
+   "sellable": false,
+   "classifications": [],
+   "rulesText": "",
+   "printNumber": "005",
+   "legality": "not-legal"
+  },
+  {
+   "key": "reboot-optics",
+   "name": "Reboot Optics",
+   "subname": null,
+   "canonicalName": "Reboot Optics",
+   "kind": "Program",
+   "color": "Blue",
+   "cost": 2,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Quickhack"
+   ],
+   "rulesText": "{Quick} The next time a rival Unit fights this turn, it doesn't defeat the opposing friendly Unit.",
+   "printNumber": "136",
+   "legality": "legal"
+  },
+  {
+   "key": "riding-nomad",
+   "name": "Riding Nomad",
+   "subname": null,
+   "canonicalName": "Riding Nomad",
+   "kind": "Unit",
+   "color": "Green",
+   "cost": 5,
+   "power": 4,
+   "ram": 4,
+   "sellable": false,
+   "classifications": [
+    "Nomad"
+   ],
+   "rulesText": "{Adrenaline} (This Unit can attack the turn it's played.)",
+   "printNumber": "087",
+   "legality": "legal"
+  },
+  {
+   "key": "riot-shield",
+   "name": "Riot Shield",
+   "subname": null,
+   "canonicalName": "Riot Shield",
+   "kind": "Gear",
+   "color": "Green",
+   "cost": 2,
+   "power": 1,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Weapon"
+   ],
+   "rulesText": "(Equip to a friendly Unit or face-up Legend.)\n{Blocker} (You may spend this Unit to redirect a rival Unit's attack to it instead.)\nRivals must pay +2 €$ to use {Go Solo}.",
+   "printNumber": "094",
+   "legality": "legal"
+  },
+  {
+   "key": "rita-wheeler-no-stupid-questions",
+   "name": "Rita Wheeler",
+   "subname": "No Stupid Questions",
+   "canonicalName": "Rita Wheeler — No Stupid Questions",
+   "kind": "Unit",
+   "color": "Blue",
+   "cost": 4,
+   "power": 4,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Ganger",
+    "Mox"
+   ],
+   "rulesText": "{Blocker} (You may spend this Unit to redirect a rival Unit's attack to it instead.)\nThe first time this Unit is spent each turn, draw 1, then discard 1.",
+   "printNumber": "125",
+   "legality": "legal"
+  },
+  {
+   "key": "river-ward-detective-on-the-hunt",
+   "name": "River Ward",
+   "subname": "Detective on the Hunt",
+   "canonicalName": "River Ward — Detective on the Hunt",
+   "kind": "Legend",
+   "color": "Yellow",
+   "cost": null,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "NCPD"
+   ],
+   "rulesText": "{Quick} {Spend} Play a Gear with cost 2 or less from your hand for free.\nWhen a friendly equipped Unit is defeated, search the top 2 cards of your deck and trash 1.",
+   "printNumber": "039",
+   "legality": "legal"
+  },
+  {
+   "key": "rockn-rockerboy",
+   "name": "Rockn' Rockerboy",
+   "subname": null,
+   "canonicalName": "Rockn' Rockerboy",
+   "kind": "Unit",
+   "color": "Yellow",
+   "cost": 5,
+   "power": 8,
+   "ram": 1,
+   "sellable": false,
+   "classifications": [
+    "Rocker"
+   ],
+   "rulesText": "[Flavor] Scream your throat raw for something. Anything.",
+   "printNumber": "052",
+   "legality": "legal"
+  },
+  {
+   "key": "rogue-amendiares-preem-solo",
+   "name": "Rogue Amendiares",
+   "subname": "Preem Solo",
+   "canonicalName": "Rogue Amendiares — Preem Solo",
+   "kind": "Legend",
+   "color": "Yellow",
+   "cost": 7,
+   "power": 7,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Merc"
+   ],
+   "rulesText": "{Go Solo} (Pay this Legend's cost to play it as a ready Unit. It can attack this turn. If it leaves the field, remove it from the game.)\nWhen a friendly Legend steals a Gig, if its value is even, draw 1. If its value is odd, a Rival discards 1.",
+   "printNumber": "040",
+   "legality": "legal"
+  },
+  {
+   "key": "rogue-amendiares-queen-of-the-afterlife",
+   "name": "Rogue Amendiares",
+   "subname": "Queen of the Afterlife",
+   "canonicalName": "Rogue Amendiares — Queen of the Afterlife",
+   "kind": "Unit",
+   "color": "Blue",
+   "cost": 5,
+   "power": 4,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Fixer",
+    "Merc"
+   ],
+   "rulesText": "The first time another friendly Unit steals a Gig with value less than its power each turn, ready 2 Eddies.\n{Quick} 2 €$,  {Spend} A rival Unit loses power equal to this Unit's power this turn.",
+   "printNumber": "126",
+   "legality": "legal"
+  },
+  {
+   "key": "royce-don-t-call-me-simon",
+   "name": "Royce",
+   "subname": "Don't Call Me Simon",
+   "canonicalName": "Royce — Don't Call Me Simon",
+   "kind": "Unit",
+   "color": "Red",
+   "cost": 5,
+   "power": 4,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Ganger",
+    "Maelstrom"
+   ],
+   "rulesText": "{Play} Defeat a rival Unit with power 2 or less. If you have more ☆ (Street Cred) than a Rival, defeat a rival Unit with power 3 or less instead.",
+   "printNumber": "016",
+   "legality": "legal"
+  },
+  {
+   "key": "royce-psycho-on-the-edge",
+   "name": "Royce",
+   "subname": "Psycho on the Edge",
+   "canonicalName": "Royce — Psycho on the Edge",
+   "kind": "Legend",
+   "color": "Red",
+   "cost": 6,
+   "power": 6,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Maelstrom",
+    "Ganger"
+   ],
+   "rulesText": "{Go Solo} (Pay this Legend's cost to play it as a ready Unit. It can attack this turn. If it leaves the field, remove it from the game.)\nDuring your turn, this Legend has +2 power for each of its equipped Gear.",
+   "printNumber": "004",
+   "legality": "legal"
+  },
+  {
+   "key": "ruthless-lowlife",
+   "name": "Ruthless Lowlife",
+   "subname": null,
+   "canonicalName": "Ruthless Lowlife",
+   "kind": "Unit",
+   "color": "Red",
+   "cost": 2,
+   "power": 4,
+   "ram": 1,
+   "sellable": false,
+   "classifications": [
+    "Ganger",
+    "Maelstrom"
+   ],
+   "rulesText": "This Unit can only attack rival Units. (It can't attack Gig areas.)",
+   "printNumber": "017",
+   "legality": "legal"
+  },
+  {
+   "key": "saburo-arasaka-stubborn-patriarch",
+   "name": "Saburo Arasaka",
+   "subname": "Stubborn Patriarch",
+   "canonicalName": "Saburo Arasaka — Stubborn Patriarch",
+   "kind": "Legend",
+   "color": "Green",
+   "cost": null,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Arasaka",
+    "Corpo"
+   ],
+   "rulesText": "Friendly ARASAKA Units have +1 power while attacking.\n(Units steal an extra Gig for every 10 power.)",
+   "printNumber": "013",
+   "legality": "legal"
+  },
+  {
+   "key": "safety-override",
+   "name": "Safety Override",
+   "subname": null,
+   "canonicalName": "Safety Override",
+   "kind": "Program",
+   "color": "Yellow",
+   "cost": 2,
+   "power": null,
+   "ram": 3,
+   "sellable": true,
+   "classifications": [
+    "Quickhack"
+   ],
+   "rulesText": "{Quick} The next time a friendly Unit loses a fight this turn, defeat the opposing rival Unit.",
+   "printNumber": "069",
+   "legality": "legal"
+  },
+  {
+   "key": "sandayu-oda-hanako-s-guardian",
+   "name": "Sandayu Oda",
+   "subname": "Hanako's Guardian",
+   "canonicalName": "Sandayu Oda — Hanako's Guardian",
+   "kind": "Unit",
+   "color": "Green",
+   "cost": 7,
+   "power": 8,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Arasaka",
+    "Corpo"
+   ],
+   "rulesText": "{Play} Spend a rival Unit for each friendly value-pair of Gigs.\nThis Unit can attack rival Units the turn it's played.",
+   "printNumber": "088",
+   "legality": "legal"
+  },
+  {
+   "key": "sandevistan",
+   "name": "Sandevistan",
+   "subname": null,
+   "canonicalName": "Sandevistan",
+   "kind": "Gear",
+   "color": "Green",
+   "cost": 3,
+   "power": 2,
+   "ram": 3,
+   "sellable": true,
+   "classifications": [
+    "Cyberware"
+   ],
+   "rulesText": "(Equip to a friendly Unit or face-up Legend.)\nAt the end of your turn, ready this Unit or Legend.",
+   "printNumber": "095",
+   "legality": "legal"
+  },
+  {
+   "key": "sasha-yakovleva-won-t-let-you-down",
+   "name": "Sasha Yakovleva",
+   "subname": "Won't Let You Down",
+   "canonicalName": "Sasha Yakovleva — Won't Let You Down",
+   "kind": "Legend",
+   "color": "Blue",
+   "cost": 5,
+   "power": 0,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Maine's Crew",
+    "Merc",
+    "Netrunner"
+   ],
+   "rulesText": "{Go Solo}\n{Attack} Reveal the top card of your deck and add it to your hand. This Unit gains power equal to that card's cost this turn.\n{Defeated} A Rival discards 1.",
+   "printNumber": "109",
+   "legality": "legal"
+  },
+  {
+   "key": "satori-sword-of-saburo",
+   "name": "Satori",
+   "subname": "Sword of Saburo",
+   "canonicalName": "Satori — Sword of Saburo",
+   "kind": "Gear",
+   "color": "Red",
+   "cost": 2,
+   "power": 2,
+   "ram": 1,
+   "sellable": true,
+   "classifications": [
+    "Arasaka",
+    "Weapon"
+   ],
+   "rulesText": "(Equip to a friendly Unit or face-up Legend.)\nWhen this Unit wins a fight against a rival Unit, draw 1.",
+   "printNumber": "026",
+   "legality": "legal"
+  },
+  {
+   "key": "saul-bright-stormrider",
+   "name": "Saul Bright",
+   "subname": "Stormrider",
+   "canonicalName": "Saul Bright — Stormrider",
+   "kind": "Unit",
+   "color": "Green",
+   "cost": 8,
+   "power": 14,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Aldecaldo",
+    "Nomad"
+   ],
+   "rulesText": "Other friendly Units have +2 power while attacking.\nAt the end of your turn, ready up to 3 friendly Units.",
+   "printNumber": "089",
+   "legality": "legal"
+  },
+  {
+   "key": "screw-lovelorn-fool",
+   "name": "Screw",
+   "subname": "Lovelorn Fool",
+   "canonicalName": "Screw — Lovelorn Fool",
+   "kind": "Unit",
+   "color": "Red",
+   "cost": 5,
+   "power": 7,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Ganger",
+    "Maelstrom"
+   ],
+   "rulesText": "{Defeated} Add another Unit from your trash to your hand.",
+   "printNumber": "018",
+   "legality": "legal"
+  },
+  {
+   "key": "secondhand-bombus",
+   "name": "Secondhand Bombus",
+   "subname": null,
+   "canonicalName": "Secondhand Bombus",
+   "kind": "Unit",
+   "color": "Yellow",
+   "cost": 2,
+   "power": 0,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Drone",
+    "Zetatech"
+   ],
+   "rulesText": "{Blocker} (You may spend this Unit to redirect a rival Unit's attack to it instead.)\n(Units with power 0 don't steal Gigs.)",
+   "printNumber": "053",
+   "legality": "legal"
+  },
+  {
+   "key": "shattered-memories",
+   "name": "Shattered Memories",
+   "subname": null,
+   "canonicalName": "Shattered Memories",
+   "kind": "Program",
+   "color": "Red",
+   "cost": 4,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Braindance"
+   ],
+   "rulesText": "Each player discards their hand and may draw 5.\nIf the total number of discarded cards equals the value of a friendly Gig, draw 2.",
+   "printNumber": "035",
+   "legality": "legal"
+  },
+  {
+   "key": "sketchy-ripper",
+   "name": "Sketchy Ripper",
+   "subname": null,
+   "canonicalName": "Sketchy Ripper",
+   "kind": "Unit",
+   "color": "Yellow",
+   "cost": 2,
+   "power": 0,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Ganger",
+    "Ripperdoc",
+    "Scavenger"
+   ],
+   "rulesText": "{Attack} Search the top 3 cards of your deck. Reveal a Gear and add it to your hand. Bottom-deck the rest.\n(Units with power 0 don't steal Gigs.)",
+   "printNumber": "054",
+   "legality": "legal"
+  },
+  {
+   "key": "swordwise-huscle",
+   "name": "Swordwise Huscle",
+   "subname": null,
+   "canonicalName": "Swordwise Huscle",
+   "kind": "Unit",
+   "color": "Red",
+   "cost": 3,
+   "power": 3,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Merc"
+   ],
+   "rulesText": "{Attack} If this Unit has power 5+, draw 1.",
+   "printNumber": "019",
+   "legality": "legal"
+  },
+  {
+   "key": "synapse-burnout",
+   "name": "Synapse Burnout",
+   "subname": null,
+   "canonicalName": "Synapse Burnout",
+   "kind": "Program",
+   "color": "Green",
+   "cost": 1,
+   "power": null,
+   "ram": 1,
+   "sellable": true,
+   "classifications": [
+    "Quickhack"
+   ],
+   "rulesText": "{Quick} A friendly Unit has +1 power for each friendly face-up Legend while fighting rival Units this turn.",
+   "printNumber": "102",
+   "legality": "legal"
+  },
+  {
+   "key": "t-bug-amateur-philosopher",
+   "name": "T-Bug",
+   "subname": "Amateur Philosopher",
+   "canonicalName": "T-Bug — Amateur Philosopher",
+   "kind": "Unit",
+   "color": "Yellow",
+   "cost": 4,
+   "power": 4,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Merc",
+    "Netrunner"
+   ],
+   "rulesText": "{Defeated} Look at all friendly face-down Legends. Then, you may Call a Legend for free. (You can only Call a Legend once per turn.)",
+   "printNumber": "055",
+   "legality": "legal"
+  },
+  {
+   "key": "take-control",
+   "name": "Take Control",
+   "subname": null,
+   "canonicalName": "Take Control",
+   "kind": "Program",
+   "color": "Green",
+   "cost": 2,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Quickhack"
+   ],
+   "rulesText": "{Quick} A rival Unit steals 1 fewer Gig this turn. If that Unit is an AI, DRONE, or VEHICLE, draw 1.",
+   "printNumber": "103",
+   "legality": "legal"
+  },
+  {
+   "key": "tetratronic-rippler",
+   "name": "Tetratronic Rippler",
+   "subname": null,
+   "canonicalName": "Tetratronic Rippler",
+   "kind": "Gear",
+   "color": "Blue",
+   "cost": 1,
+   "power": 1,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Cyberware"
+   ],
+   "rulesText": "(Equip to a friendly Unit or face-up Legend.)\nWhen this Unit or Legend is spent, search the top card of your deck. You may trash it. (Otherwise, keep it on the top of your deck.)",
+   "printNumber": "130",
+   "legality": "legal"
+  },
+  {
+   "key": "the-heist",
+   "name": "The Heist",
+   "subname": null,
+   "canonicalName": "The Heist",
+   "kind": "Program",
+   "color": "Yellow",
+   "cost": 2,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Merc"
+   ],
+   "rulesText": "Trash 4. Add a Gear from among them to your hand. If that Gear's cost equals the value of a friendly Gig, you may play it for free instead.",
+   "printNumber": "070",
+   "legality": "legal"
+  },
+  {
+   "key": "the-relic-experimental-biochip",
+   "name": "The Relic",
+   "subname": "Experimental Biochip",
+   "canonicalName": "The Relic — Experimental Biochip",
+   "kind": "Gear",
+   "color": "Yellow",
+   "cost": 5,
+   "power": 3,
+   "ram": 4,
+   "sellable": true,
+   "classifications": [
+    "Arasaka",
+    "Cyberware"
+   ],
+   "rulesText": "{Defeated} Play another Unit with cost 9 or less from your trash for free. Then, bottom-deck this Unit.",
+   "printNumber": "063",
+   "legality": "legal"
+  },
+  {
+   "key": "three-mouths-one-desire",
+   "name": "Three Mouths, One Desire",
+   "subname": null,
+   "canonicalName": "Three Mouths, One Desire",
+   "kind": "Program",
+   "color": "Blue",
+   "cost": 2,
+   "power": null,
+   "ram": 3,
+   "sellable": true,
+   "classifications": [
+    "Braindance",
+    "Doll"
+   ],
+   "rulesText": "Search the top 3 cards of your deck. Add 1 to your hand. You may add 1 more for each friendly min Gig. Bottom-deck the rest.",
+   "printNumber": "137",
+   "legality": "legal"
+  },
+  {
+   "key": "towerfall",
+   "name": "Towerfall",
+   "subname": null,
+   "canonicalName": "Towerfall",
+   "kind": "Program",
+   "color": "Blue",
+   "cost": 6,
+   "power": null,
+   "ram": 4,
+   "sellable": true,
+   "classifications": [
+    "Braindance"
+   ],
+   "rulesText": "Choose one effect. If you have less ☆ (Street Cred) than a Rival, choose both instead.\nGive all rival Units -5 power this turn. // Bottom-deck all rival Units with power 0.",
+   "printNumber": "138",
+   "legality": "legal"
+  },
+  {
+   "key": "trauma-team-operatives",
+   "name": "Trauma Team Operatives",
+   "subname": null,
+   "canonicalName": "Trauma Team Operatives",
+   "kind": "Unit",
+   "color": "Yellow",
+   "cost": 6,
+   "power": 7,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Medtech",
+    "Trauma Team"
+   ],
+   "rulesText": "Play this Unit for -1 €$ for each Unit in your trash, to a minimum of 1 €$.",
+   "printNumber": "056",
+   "legality": "legal"
+  },
+  {
+   "key": "trust-no-one",
+   "name": "Trust No One",
+   "subname": null,
+   "canonicalName": "Trust No One",
+   "kind": "Program",
+   "color": "Blue",
+   "cost": 1,
+   "power": null,
+   "ram": 1,
+   "sellable": true,
+   "classifications": [
+    "Braindance"
+   ],
+   "rulesText": "Decrease a Gig by up to 3. Then, if you control a min Gig, draw 1.",
+   "printNumber": "139",
+   "legality": "legal"
+  },
+  {
+   "key": "tyger-s-whisper",
+   "name": "Tyger's Whisper",
+   "subname": null,
+   "canonicalName": "Tyger's Whisper",
+   "kind": "Unit",
+   "color": "Green",
+   "cost": 2,
+   "power": 0,
+   "ram": 1,
+   "sellable": false,
+   "classifications": [
+    "Fixer",
+    "Tyger Claws"
+   ],
+   "rulesText": "{Play} You may Call a Legend for free. (You can only Call a Legend once per turn.)\n(Units with power 0 don't steal Gigs.)",
+   "printNumber": "090",
+   "legality": "legal"
+  },
+  {
+   "key": "unlikely-bond",
+   "name": "Unlikely Bond",
+   "subname": null,
+   "canonicalName": "Unlikely Bond",
+   "kind": "Program",
+   "color": "Blue",
+   "cost": 4,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Maelstrom",
+    "Mox"
+   ],
+   "rulesText": "Bottom-deck a ready friendly Unit. If you do, bottom-deck a spent rival Unit.",
+   "printNumber": "140",
+   "legality": "legal"
+  },
+  {
+   "key": "v-corporate-exile",
+   "name": "V",
+   "subname": "Corporate Exile",
+   "canonicalName": "V — Corporate Exile",
+   "kind": "Legend",
+   "color": "Blue",
+   "cost": 5,
+   "power": 8,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Corpo",
+    "Merc"
+   ],
+   "rulesText": "{Go Solo} (Pay this Legend's cost to play it as a ready Unit. It can attack this turn. When it leaves the field, remove it from the game.)",
+   "printNumber": "012",
+   "legality": "legal"
+  },
+  {
+   "key": "v-roamer-of-the-badlands",
+   "name": "V",
+   "subname": "Roamer of the Badlands",
+   "canonicalName": "V — Roamer of the Badlands",
+   "kind": "Unit",
+   "color": "Red",
+   "cost": 5,
+   "power": 6,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Merc",
+    "Nomad"
+   ],
+   "rulesText": "When this Unit steals a Gig, increase it by up to 5.\nAt the end of your turn, if you control 2 or more Gigs with 8+ value, draw 1.",
+   "printNumber": "020",
+   "legality": "legal"
+  },
+  {
+   "key": "v-streetkid",
+   "name": "V",
+   "subname": "Streetkid",
+   "canonicalName": "V — Streetkid",
+   "kind": "Legend",
+   "color": "Red",
+   "cost": 5,
+   "power": 6,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Merc"
+   ],
+   "rulesText": "{Call} Trash 3. Then, add 1 BRAINDANCE Program from your trash to your hand.\n{Go Solo} (Pay this Legend's cost to play it as a ready Unit. It can attack this turn. If it leaves the field, remove it from the game.)",
+   "printNumber": "005a",
+   "legality": "legal"
+  },
+  {
+   "key": "valentino-guerrera",
+   "name": "Valentino Guerrera",
+   "subname": null,
+   "canonicalName": "Valentino Guerrera",
+   "kind": "Unit",
+   "color": "Red",
+   "cost": 3,
+   "power": 4,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Ganger",
+    "Valentino"
+   ],
+   "rulesText": "If you have more ☆ (Street Cred) than a Rival, this Unit can attack ready Units with {Blocker}.",
+   "printNumber": "021",
+   "legality": "legal"
+  },
+  {
+   "key": "valentino-street-racer",
+   "name": "Valentino Street Racer",
+   "subname": null,
+   "canonicalName": "Valentino Street Racer",
+   "kind": "Unit",
+   "color": "Green",
+   "cost": 3,
+   "power": 3,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Valentino",
+    "Vehicle"
+   ],
+   "rulesText": "{Play} Give another friendly Unit with cost 5 or less {Adrenaline} this turn. (A Unit with Adrenaline can attack the turn it's played.)",
+   "printNumber": "091",
+   "legality": "legal"
+  },
+  {
+   "key": "viktor-vektor-drop-your-illusions",
+   "name": "Viktor Vektor",
+   "subname": "Drop Your Illusions",
+   "canonicalName": "Viktor Vektor — Drop Your Illusions",
+   "kind": "Unit",
+   "color": "Yellow",
+   "cost": 5,
+   "power": 5,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Ripperdoc"
+   ],
+   "rulesText": "Play your first CYBERWARE Gear each turn for -3 €$, to a minimum of 1 €$.",
+   "printNumber": "057",
+   "legality": "legal"
+  },
+  {
+   "key": "viktor-vektor-sit-down-and-relax",
+   "name": "Viktor Vektor",
+   "subname": "Sit Down and Relax",
+   "canonicalName": "Viktor Vektor — Sit Down and Relax",
+   "kind": "Legend",
+   "color": "Yellow",
+   "cost": null,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Ripperdoc"
+   ],
+   "rulesText": "{Call} Search the top 5 cards of your deck. Reveal up to 2 Gears with cost 2 or less and add them to your hand. Bottom-deck the rest in a random order.",
+   "printNumber": "001",
+   "legality": "legal"
+  },
+  {
+   "key": "viktor-vektor-you-might-feel-a-little-pinch",
+   "name": "Viktor Vektor",
+   "subname": "You Might Feel a Little Pinch",
+   "canonicalName": "Viktor Vektor — You Might Feel a Little Pinch",
+   "kind": "Unit",
+   "color": "Yellow",
+   "cost": 3,
+   "power": 3,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Ripperdoc"
+   ],
+   "rulesText": "{Play} Play a CYBERWARE Gear with cost 2 or less from your trash for free. Equip it only to another friendly Unit.",
+   "printNumber": "058",
+   "legality": "legal"
+  },
+  {
+   "key": "wakako-okada-peace-and-harmony",
+   "name": "Wakako Okada",
+   "subname": "Peace and Harmony",
+   "canonicalName": "Wakako Okada — Peace and Harmony",
+   "kind": "Legend",
+   "color": "Blue",
+   "cost": null,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Fixer",
+    "Tyger Claws"
+   ],
+   "rulesText": "{Call} Choose one effect.\nGive a rival Unit -2 power this turn. // Draw 1.\n{Spend}: Decrease a Gig by up to 2.",
+   "printNumber": "110",
+   "legality": "legal"
+  },
+  {
+   "key": "we-gotta-live-together",
+   "name": "We Gotta Live Together",
+   "subname": null,
+   "canonicalName": "We Gotta Live Together",
+   "kind": "Program",
+   "color": "Green",
+   "cost": 5,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Aldecaldo",
+    "Nomad"
+   ],
+   "rulesText": "If a Rival controls at least 2 more Gigs than you, play this Program for 3 €$.\nPlay up to 2 Units with cost 3 or less from your trash for free.",
+   "printNumber": "104",
+   "legality": "legal"
+  },
+  {
+   "key": "westbrook-netrunner",
+   "name": "Westbrook Netrunner",
+   "subname": null,
+   "canonicalName": "Westbrook Netrunner",
+   "kind": "Unit",
+   "color": "Blue",
+   "cost": 4,
+   "power": 5,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Netrunner"
+   ],
+   "rulesText": "{Play} Until your next turn, rival Legends can't steal friendly Gigs with value less than their power.",
+   "printNumber": "127",
+   "legality": "legal"
+  },
+  {
+   "key": "wild-in-the-streets",
+   "name": "Wild in the Streets",
+   "subname": null,
+   "canonicalName": "Wild in the Streets",
+   "kind": "Program",
+   "color": "Green",
+   "cost": 5,
+   "power": null,
+   "ram": 4,
+   "sellable": true,
+   "classifications": [
+    "Ganger"
+   ],
+   "rulesText": "Defeat a spent Unit.",
+   "printNumber": "105",
+   "legality": "legal"
+  },
+  {
+   "key": "wraith-marauders",
+   "name": "Wraith Marauders",
+   "subname": null,
+   "canonicalName": "Wraith Marauders",
+   "kind": "Unit",
+   "color": "Green",
+   "cost": 5,
+   "power": 4,
+   "ram": 2,
+   "sellable": false,
+   "classifications": [
+    "Ganger",
+    "Nomad",
+    "Raffen Shiv"
+   ],
+   "rulesText": "When this Unit steals a Gig, ready another friendly Unit with power equal to the Gig's value.",
+   "printNumber": "092",
+   "legality": "legal"
+  },
+  {
+   "key": "yorinobu-arasaka-embracing-destruction",
+   "name": "Yorinobu Arasaka",
+   "subname": "Embracing Destruction",
+   "canonicalName": "Yorinobu Arasaka — Embracing Destruction",
+   "kind": "Legend",
+   "color": "Red",
+   "cost": null,
+   "power": null,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Arasaka",
+    "Corpo"
+   ],
+   "rulesText": "The first time a friendly ARASAKA Unit attacks each turn, draw 1. Then, if you have less than 20 ☆ (Street Cred), discard 1.",
+   "printNumber": "001",
+   "legality": "legal"
+  },
+  {
+   "key": "yorinobu-arasaka-steel-dragon",
+   "name": "Yorinobu Arasaka",
+   "subname": "Steel Dragon",
+   "canonicalName": "Yorinobu Arasaka — Steel Dragon",
+   "kind": "Unit",
+   "color": "Red",
+   "cost": 7,
+   "power": 9,
+   "ram": 3,
+   "sellable": false,
+   "classifications": [
+    "Arasaka",
+    "Corpo"
+   ],
+   "rulesText": "{Play} You may play a Unit with cost 4 or less from your hand or trash for free. It can attack rival Units this turn.\nThe first time an ARASAKA Unit is defeated each turn, draw 1.",
+   "printNumber": "022",
+   "legality": "legal"
+  },
+  {
+   "key": "zetatech-berserk",
+   "name": "Zetatech Berserk",
+   "subname": null,
+   "canonicalName": "Zetatech Berserk",
+   "kind": "Gear",
+   "color": "Green",
+   "cost": 6,
+   "power": 3,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Cyberware",
+    "Zetatech"
+   ],
+   "rulesText": "Play this Gear for -1 €$ for each friendly face-up Legend, to a minimum of 1 €$.",
+   "printNumber": "096",
+   "legality": "legal"
+  },
+  {
+   "key": "zetatech-faceplate",
+   "name": "Zetatech Faceplate",
+   "subname": null,
+   "canonicalName": "Zetatech Faceplate",
+   "kind": "Gear",
+   "color": "Yellow",
+   "cost": 2,
+   "power": 2,
+   "ram": 2,
+   "sellable": true,
+   "classifications": [
+    "Cyberware",
+    "Zetatech"
+   ],
+   "rulesText": "(Equip to a friendly Unit or face-up Legend.)\nWhen this Unit or Legend is spent, adjust a Gig by up to 1. Then, if you control 3 or more Gigs with different values, draw 1.",
+   "printNumber": "064",
+   "legality": "legal"
+  }
+ ]
+}
