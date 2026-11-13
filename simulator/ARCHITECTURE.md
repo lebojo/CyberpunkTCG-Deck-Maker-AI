@@ -119,3 +119,17 @@ Les choix de cible et de mode (« choisir un effet ») sont faits par une foncti
 ## 11. Non-régression
 
 Les 5 decks de référence sont dans `Regression/decks/`. Le résultat de l'ancien simulateur est figé dans `Regression/baseline-greedy-seed42.txt` (commande : `DeckSim Regression/decks/*.txt --ai greedy --seed 42 --games 2000`). Après le refactor, la même commande doit redonner les mêmes pourcentages à ±1 point près (idéalement à l'identique si l'ordre d'utilisation du générateur aléatoire est conservé). Les nouvelles cartes codées plus tard peuvent changer les résultats des decks qui les contiennent (c'est le but) mais pas ceux des autres decks.
+
+## 12. Écarts
+
+Écarts au contrat décidés lors du refactor SimCore (tout le reste est conforme) :
+
+- **Protocole `GameCard`** : en plus de `data`, `action`, `modifiers`, `playValue` et `keepValue`, il demande `init(data:)` (le registre construit la carte), `listens: EventMask` (obligatoire : seuls ces événements sont envoyés, pour garder la boucle chaude rapide), et propose avec valeurs par défaut `keywords`, `modifierScopes` (portées interrogées par le moteur), `abilities` / `abilityOptions` / `activate` (capacités activées), `hints: AIHints` (indices statiques pour l'IA) et `attackValueBonus`.
+- **Événements** : `playedFromHandAsGearEquipped` est `.played` avec une location `.gear(host:)` ; `stoleGig` est séparé en `.stoleGigs` (l'attaque) et `.gigStolen` (chaque Gig) ; `legendSpentAbility` n'est pas un événement mais une `ActivatedAbility` ; ajouts : `.blocked`, `.wouldBeDefeated` et `.gigWouldBeStolen` (remplacements), `.turnStarted`, `.gigRolled`, `.gigsAlteredByRival`. La relation de la carte qui reçoit (`itself`, `attachedTo`, `ally`, `delayed`) est dans `EffectContext.relation`.
+- **`EffectContext`** contient le `Game` (échangé avec un `Game` vide le temps de l'appel, sans copie des tableaux) et `EffectQuery` une copie en lecture ; `GameReading` regroupe les lectures communes, `GameActions` les actions.
+- **Performances** : chaque tâche de simulation travaille sur sa propre copie du catalogue (`CardCatalog.isolatedCopy()`), pour éviter que les compteurs de références partagés entre cœurs ne ralentissent le calcul. Les profils statiques des cartes (mots-clés, événements écoutés, portées, capacités) sont calculés une fois par catalogue.
+- **`KeywordCard`** (dossier `Generic/`) marque les cartes dont le texte n'est que des mots-clés ; `VanillaCard` reste la valeur par défaut des cartes non enregistrées.
+- **Mulligan, Defense** sont dans `AI/Heuristics/` (`Mulligan.swift`, `Defense.swift`, `QuickResponses.swift`) ; `Bluff`, `ProgressTracker`, `LiveDashboard` ne sont pas encore écrits (`--bluff` et `--no-live` sont acceptés et sans effet).
+- **Recherche** : les capacités activées sont proposées après les cartes jouables (celles de type `.mainAction`) ou après les attaques ; les identifiants de carte suivent l'ordre de `cards.json`. Les résultats restent statistiquement identiques à l'ancien moteur (qui était déjà non déterministe en mode recherche) et la recherche est environ deux fois plus rapide.
+- **Divergences de règles conservées** pour une non-régression exacte : voir la section « Divergences connues » du README.
+

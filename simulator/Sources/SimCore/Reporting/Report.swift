@@ -1,15 +1,15 @@
 import Foundation
 
-enum Report {
-    static func percent(_ value: Double) -> String {
+public enum Report {
+    public static func percent(_ value: Double) -> String {
         String(format: "%.1f%%", value * 100)
     }
 
-    static func pad(_ text: String, _ width: Int) -> String {
+    public static func pad(_ text: String, _ width: Int) -> String {
         text.count >= width ? text : text + String(repeating: " ", count: width - text.count)
     }
 
-    static func duel(a: DeckList, b: DeckList, stats: DuelStats) -> String {
+    public static func duel(a: DeckList, b: DeckList, stats: DuelStats) -> String {
         var lines: [String] = []
         lines.append("\(a.name)  vs  \(b.name)  (\(stats.games) parties)")
         lines.append("")
@@ -29,7 +29,7 @@ enum Report {
         return lines.joined(separator: "\n")
     }
 
-    static func matrix(decks: [DeckList], scores: [[Double?]]) -> String {
+    public static func matrix(decks: [DeckList], scores: [[Double?]]) -> String {
         var lines: [String] = []
         let names = decks.map { String($0.name.prefix(22)) }
         lines.append(pad("", 24) + names.indices.map { pad("#\($0 + 1)", 8) }.joined() + "moyenne")
@@ -53,7 +53,7 @@ enum Report {
         return lines.joined(separator: "\n")
     }
 
-    static func tournament(decks: [DeckList], stats: TournamentStats, bestOf: Int) -> String {
+    public static func tournament(decks: [DeckList], stats: TournamentStats, bestOf: Int) -> String {
         let n = Double(max(1, stats.tournaments))
         let baseline = 1.0 / Double(decks.count)
         var lines: [String] = []
@@ -73,11 +73,11 @@ enum Report {
         return lines.joined(separator: "\n")
     }
 
-    static func markdownCell(_ text: String) -> String {
+    public static func markdownCell(_ text: String) -> String {
         text.replacingOccurrences(of: "|", with: "\\|")
     }
 
-    static func tournamentMarkdown(decks: [DeckList], stats: TournamentStats, bestOf: Int) -> String {
+    public static func tournamentMarkdown(decks: [DeckList], stats: TournamentStats, bestOf: Int) -> String {
         let n = Double(max(1, stats.tournaments))
         var lines: [String] = []
         lines.append("# Résultats de tournois")
@@ -99,7 +99,7 @@ enum Report {
         return lines.joined(separator: "\n") + "\n"
     }
 
-    static func matrixMarkdown(decks: [DeckList], scores: [[Double?]]) -> String {
+    public static func matrixMarkdown(decks: [DeckList], scores: [[Double?]]) -> String {
         var lines: [String] = []
         lines.append("# Matrice des duels")
         lines.append("")
@@ -126,7 +126,7 @@ enum Report {
         return lines.joined(separator: "\n") + "\n"
     }
 
-    static func duelMarkdown(a: DeckList, b: DeckList, stats: DuelStats) -> String {
+    public static func duelMarkdown(a: DeckList, b: DeckList, stats: DuelStats) -> String {
         var lines: [String] = []
         lines.append("# \(markdownCell(a.name)) vs \(markdownCell(b.name))")
         lines.append("")
@@ -137,16 +137,5 @@ enum Report {
         lines.append("| \(markdownCell(a.name)) | **\(percent(stats.scoreA))** | \(stats.winsA) |")
         lines.append("| \(markdownCell(b.name)) | **\(percent(1 - stats.scoreA))** | \(stats.winsB) |")
         return lines.joined(separator: "\n") + "\n"
-    }
-
-    static func unsupportedCards(decks: [DeckList], catalog: CardCatalog) -> [String] {
-        var names = Set<String>()
-        for deck in decks {
-            for id in deck.legends + deck.main {
-                let card = catalog.cards[id]
-                if case .vanilla = card.behavior, !card.text.isEmpty, !card.text.contains("[Flavor]") { names.insert(card.name) }
-            }
-        }
-        return names.sorted()
     }
 }

@@ -51,8 +51,7 @@ extension Game {
         return true
     }
 
-    @discardableResult
-    mutating func setGigToMatchBest(_ p: Int) -> Bool {
+    func bestMatchingSet(_ p: Int) -> (index: Int, value: Int)? {
         let gigs = players[p].gigs
         let wantsMin = players[p].wantsMinGigs
         let baseline = gigScore(gigs, wantsMin: wantsMin)
@@ -67,7 +66,12 @@ extension Game {
                 if score > baseline, score > (best?.score ?? -1) { best = (index, value, score) }
             }
         }
-        guard let choice = best else { return false }
+        return best.map { ($0.index, $0.value) }
+    }
+
+    @discardableResult
+    mutating func setGigToMatchBest(_ p: Int) -> Bool {
+        guard let choice = bestMatchingSet(p) else { return false }
         adjustGig(p, index: choice.index, to: choice.value)
         return true
     }
@@ -78,5 +82,42 @@ extension Game {
         if players[owner].gigs.contains(where: { $0.value == gig.value }) { score += 3 }
         if gig.value >= 8 { score += 1 }
         return score
+    }
+
+    func bestGigSwap(_ p: Int, margin: Double) -> (mine: Int, theirs: Int)? {
+        let wantsMin = players[p].wantsMinGigs
+        let baseline = gigScore(players[p].gigs, wantsMin: wantsMin)
+        var best: (mine: Int, theirs: Int, score: Double)?
+        for i in players[p].gigs.indices {
+            for j in players[1 - p].gigs.indices {
+                var trial = players[p].gigs
+                trial[i] = players[1 - p].gigs[j]
+                let score = gigScore(trial, wantsMin: wantsMin)
+                if score > baseline + margin, score > (best?.score ?? 0) { best = (i, j, score) }
+            }
+        }
+        return best.map { ($0.mine, $0.theirs) }
+    }
+
+    func bestNetGigSwap(_ p: Int) -> (mine: Int, theirs: Int)? {
+        let mine = players[p].gigs
+        let theirs = players[1 - p].gigs
+        guard !mine.isEmpty, !theirs.isEmpty else { return nil }
+        var best: (own: Int, rival: Int, net: Double)?
+        let ownBefore = gigScore(mine, wantsMin: players[p].wantsMinGigs)
+        let rivalBefore = gigScore(theirs, wantsMin: players[1 - p].wantsMinGigs)
+        for own in mine.indices {
+            for rival in theirs.indices where mine[own].value != theirs[rival].value {
+                var ownAfter = mine
+                var rivalAfter = theirs
+                ownAfter[own] = theirs[rival]
+                rivalAfter[rival] = mine[own]
+                let gain = gigScore(ownAfter, wantsMin: players[p].wantsMinGigs) - ownBefore
+                let loss = gigScore(rivalAfter, wantsMin: players[1 - p].wantsMinGigs) - rivalBefore
+                let net = gain - loss
+                if net > 1, net > (best?.net ?? 0) { best = (own, rival, net) }
+            }
+        }
+        return best.map { ($0.own, $0.rival) }
     }
 }

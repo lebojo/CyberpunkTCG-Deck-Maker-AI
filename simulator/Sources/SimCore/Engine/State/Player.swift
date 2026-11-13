@@ -1,43 +1,24 @@
-struct Gig: Sendable {
-    let sides: Int
-    var value: Int
+public struct Gig: Sendable, Hashable {
+    public let sides: Int
+    public var value: Int
 
-    var isMin: Bool { value == 1 }
-    var isMax: Bool { value == sides }
-}
+    public init(sides: Int, value: Int) {
+        self.sides = sides
+        self.value = value
+    }
 
-struct FieldUnit: Sendable {
-    let uid: Int
-    let cardId: Int
-    let isLegend: Bool
-    var spent = false
-    var lagging = true
-    var gears: [Int] = []
-    var bonusPower = 0
-    var fightBonus = 0
-    var cannotAttackBefore = 0
-    var defeatAtEnd = false
-    var stoleThisTurn = false
-    var readiedByWin = false
-}
-
-struct LegendSlot: Sendable {
-    let cardId: Int
-    var faceUp = false
-    var spent = false
-    var gears: [Int] = []
+    public var isMin: Bool { value == 1 }
+    public var isMax: Bool { value == sides }
+    public var isEven: Bool { value % 2 == 0 }
 }
 
 struct TurnFlags: Sendable {
     var sold = false
     var called = false
     var programsPlayed = 0
-    var jackieUsed = false
-    var yorinobuUsed = false
-    var programDiscount = 0
-    var safetyOverrides = 0
-    var cyberwareDiscountUsed = false
-    var altTrashUsed = false
+    var usedOncePerTurn: [Int] = []
+    var pendingDiscounts: [PendingDiscount] = []
+    var delayedTriggers: [DelayedTrigger] = []
 }
 
 struct Player: Sendable {
@@ -54,27 +35,4 @@ struct Player: Sendable {
     var mulliganed = false
     var wantsMinGigs = false
     var revealed: [Int] = []
-}
-
-enum WinReason: Sendable {
-    case gigsAtStart
-    case gigsInOvertime
-    case deckOut
-    case turnLimit
-}
-
-enum Outcome: Sendable {
-    case ongoing
-    case win(player: Int, reason: WinReason)
-    case draw
-}
-
-enum AttackTarget: Sendable, Hashable {
-    case gigs
-    case unit(Int)
-}
-
-enum EquipTarget: Sendable, Hashable {
-    case unit(Int)
-    case legend(Int)
 }

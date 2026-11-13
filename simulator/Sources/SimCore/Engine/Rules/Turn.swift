@@ -18,7 +18,7 @@ extension Game {
         players[p].flags = TurnFlags()
         draw(p, 1)
         if isOver { return }
-        if faceUpLegend(p, .hanako) { draw(p, valuePairs(p)) }
+        broadcast(.turnStarted, to: p)
         if isOver { return }
         rollIn(p)
         note("--- turn \(turn) P\(p): hand \(players[p].hand.count), eddies \(players[p].eddiesReady), gigs \(players[p].gigs.count)/\(players[1 - p].gigs.count)")
@@ -35,7 +35,9 @@ extension Game {
         } else {
             for slot in players[p].legends.indices { players[p].legends[slot].spent = false }
         }
-        for index in players[p].field.indices { players[p].field[index].spent = false }
+        for index in players[p].field.indices where turn >= players[p].field[index].cannotReadyBefore {
+            players[p].field[index].spent = false
+        }
     }
 
     mutating func rollIn(_ p: Int) {
@@ -50,41 +52,20 @@ extension Game {
         players[p].fixer.removeAll { $0 == sides }
         let value = Int.random(in: 1...sides, using: &rng)
         players[p].gigs.append(Gig(sides: sides, value: value))
+        broadcast(.gigRolled(index: players[p].gigs.count - 1), to: p)
     }
 
     mutating func endTurn(_ p: Int) {
-        for index in players[p].field.indices {
-            let unit = players[p].field[index]
-            if unit.gears.contains(where: { card($0).behavior == .sandevistan }) { players[p].field[index].spent = false }
-        }
-        for slot in players[p].legends.indices where players[p].legends[slot].gears.contains(where: { card($0).behavior == .sandevistan }) {
-            players[p].legends[slot].spent = false
-        }
-        if fieldHas(p, .saulBright) {
-            let spent = players[p].field.filter { $0.spent }.sorted { power(p, $0, attacking: true) > power(p, $1, attacking: true) }
-            for unit in spent.prefix(3) {
-                if let index = unitIndex(p, unit.uid) { players[p].field[index].spent = false }
-            }
-        }
+        resolveRequiredAttacks(p)
+        if isOver { return }
+        announceEndOfTurnToGears(p)
         for unit in players[p].field where unit.defeatAtEnd {
             defeat(p, uid: unit.uid)
         }
-        for unit in players[p].field where card(unit.cardId).behavior == .kusanagi {
-            if let index = unitIndex(p, unit.uid) {
-                let removed = players[p].field.remove(at: index)
-                players[p].hand.append(removed.cardId)
-                players[p].hand.append(contentsOf: removed.gears)
-            }
-        }
+        broadcast(.endOfTurn, to: p)
+        expireEndOfTurnTriggers()
         for side in 0..<2 {
-            for index in players[side].field.indices {
-                players[side].field[index].bonusPower = 0
-                players[side].field[index].fightBonus = 0
-                players[side].field[index].lagging = false
-                players[side].field[index].defeatAtEnd = false
-                players[side].field[index].stoleThisTurn = false
-                players[side].field[index].readiedByWin = false
-            }
+            for index in players[side].field.indices { players[side].field[index].clearTurnState() }
         }
         if emptyFixerStreak >= 2, !overtime {
             overtime = true
@@ -92,5 +73,33 @@ extension Game {
             checkOvertimeWin()
         }
         active = 1 - p
+    }
+
+    mutating func announceEndOfTurnToGears(_ p: Int) {
+        guard listenersInPlay.contains(.endOfTurn) else { return }
+        let fieldHosts = players[p].field.filter { !$0.gears.isEmpty }.map { (EquipTarget.unit($0.uid), $0.gears) }
+        for (host, gears) in fieldHosts { sendToGears(.endOfTurn, owner: p, gears: gears, host: host) }
+        let legendHosts = players[p].legends.indices.filter { !players[p].legends[$0].gears.isEmpty }.map { (EquipTarget.legend($0), players[p].legends[$0].gears) }
+        for (host, gears) in legendHosts { sendToGears(.endOfTurn, owner: p, gears: gears, host: host) }
+    }
+
+    mutating func resolveRequiredAttacks(_ p: Int) {
+        let required = players[p].field.filter { $0.mustAttackOnTurn == turn }.map(\.uid)
+        for uid in required {
+            guard !isOver, let attacker = unit(p, uid), canAttackAtAll(p, attacker) else { continue }
+            if canStealGigs(p, attacker) {
+                performAttack(p, attackerUid: uid, target: .gigs)
+            } else if let target = validUnitTargets(p, attacker).min(by: { power(1 - p, $0, attacking: false) < power(1 - p, $1, attacking: false) }) {
+                performAttack(p, attackerUid: uid, target: .unit(target.uid))
+            }
+        }
+    }
+
+    mutating func checkOvertimeWin() {
+        guard overtime, !isOver else { return }
+        let order = [active, 1 - active]
+        let winners = order.filter { players[$0].gigs.count >= 7 }
+        if winners.count == 2 { outcome = .draw }
+        else if let winner = winners.first { outcome = .win(player: winner, reason: .gigsInOvertime) }
     }
 }

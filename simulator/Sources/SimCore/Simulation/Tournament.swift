@@ -1,13 +1,13 @@
 import Foundation
 
-struct TournamentStats: Sendable {
-    var tournaments = 0
-    var titles: [Int]
-    var finals: [Int]
-    var matchesPlayed: [Int]
-    var matchesWon: [Int]
-    var gamesPlayed: [Int]
-    var gamesWon: [Int]
+public struct TournamentStats: Sendable {
+    public internal(set) var tournaments = 0
+    public internal(set) var titles: [Int]
+    public internal(set) var finals: [Int]
+    public internal(set) var matchesPlayed: [Int]
+    public internal(set) var matchesWon: [Int]
+    public internal(set) var gamesPlayed: [Int]
+    public internal(set) var gamesWon: [Int]
 
     init(deckCount: Int) {
         titles = Array(repeating: 0, count: deckCount)
@@ -31,17 +31,18 @@ struct TournamentStats: Sendable {
     }
 }
 
-enum Tournament {
-    static func run(catalog: CardCatalog, decks: [DeckList], count: Int, bestOf: Int, seed: UInt64, workers: Int, search: Bool) async -> TournamentStats {
+public enum Tournament {
+    public static func run(catalog: CardCatalog, decks: [DeckList], count: Int, bestOf: Int, seed: UInt64, workers: Int, search: Bool, config: SearchConfig = SearchConfig()) async -> TournamentStats {
         let chunk = max(1, count / (workers * 4))
         return await withTaskGroup(of: TournamentStats.self) { group in
             var start = 0
             while start < count {
                 let range = start..<min(count, start + chunk)
                 group.addTask {
+                    let local = catalog.isolatedCopy()
                     var stats = TournamentStats(deckCount: decks.count)
                     for index in range {
-                        playOne(catalog: catalog, decks: decks, bestOf: bestOf, search: search, seed: seed &+ UInt64(index) &* 0xD1B5_4A32_D192_ED03, into: &stats)
+                        playOne(catalog: local, decks: decks, bestOf: bestOf, search: search, config: config, seed: seed &+ UInt64(index) &* 0xD1B5_4A32_D192_ED03, into: &stats)
                     }
                     return stats
                 }
@@ -53,7 +54,7 @@ enum Tournament {
         }
     }
 
-    static func playOne(catalog: CardCatalog, decks: [DeckList], bestOf: Int, search: Bool, seed: UInt64, into stats: inout TournamentStats) {
+    static func playOne(catalog: CardCatalog, decks: [DeckList], bestOf: Int, search: Bool, config: SearchConfig, seed: UInt64, into stats: inout TournamentStats) {
         var rng = SplitMix64(seed: seed)
         var remaining = Array(decks.indices)
         remaining.shuffle(using: &rng)
@@ -69,7 +70,7 @@ enum Tournament {
                 let a = remaining[index]
                 let b = remaining[index + 1]
                 let isFinal = remaining.count == 2
-                let winner = playMatch(catalog: catalog, decks: decks, a: a, b: b, bestOf: bestOf, search: search, rng: &rng, stats: &stats)
+                let winner = playMatch(catalog: catalog, decks: decks, a: a, b: b, bestOf: bestOf, search: search, config: config, rng: &rng, stats: &stats)
                 stats.matchesPlayed[a] += 1
                 stats.matchesPlayed[b] += 1
                 stats.matchesWon[winner] += 1
@@ -85,7 +86,7 @@ enum Tournament {
         }
     }
 
-    static func playMatch(catalog: CardCatalog, decks: [DeckList], a: Int, b: Int, bestOf: Int, search: Bool, rng: inout SplitMix64, stats: inout TournamentStats) -> Int {
+    static func playMatch(catalog: CardCatalog, decks: [DeckList], a: Int, b: Int, bestOf: Int, search: Bool, config: SearchConfig, rng: inout SplitMix64, stats: inout TournamentStats) -> Int {
         let target = bestOf / 2 + 1
         var winsA = 0
         var winsB = 0
@@ -94,7 +95,7 @@ enum Tournament {
             played += 1
             let gameSeed = rng.next()
             let first = Int.random(in: 0...1, using: &rng)
-            let result = Simulator.winner(catalog: catalog, decks: [decks[a], decks[b]], seed: gameSeed, firstPlayer: first, search: [search, search])
+            let result = Simulator.winner(catalog: catalog, decks: [decks[a], decks[b]], seed: gameSeed, firstPlayer: first, search: [search, search], config: config)
             stats.gamesPlayed[a] += 1
             stats.gamesPlayed[b] += 1
             switch result {

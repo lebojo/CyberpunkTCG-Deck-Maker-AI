@@ -2,29 +2,25 @@ enum SearchAction: Sendable, Hashable {
     case sell(Int)
     case call
     case play(Int, EquipTarget?)
-    case riverWard(Int)
+    case ability(AbilityUse)
     case goSolo(Int)
     case attack(Int, AttackTarget)
-    case hanako
-    case altReplay
     case endTurn
 }
 
-private struct Candidate {
-    let action: SearchAction
-    let afterTurn: Game
-    let quick: Double
-}
+public struct SearchConfig: Sendable {
+    public var samples = 3
+    public var depth = 3
+    public var shortlist = 4
 
-struct SearchConfig: Sendable {
-    var samples = 3
-    var depth = 3
-    var shortlist = 4
+    public init(samples: Int = 3, depth: Int = 3, shortlist: Int = 4) {
+        self.samples = samples
+        self.depth = depth
+        self.shortlist = shortlist
+    }
 }
 
 extension Game {
-    nonisolated(unsafe) static var searchConfig = SearchConfig()
-
     func gigValue(_ count: Int) -> Double {
         let table: [Double] = [0, 35, 75, 120, 170, 230, 320, 2000]
         return table[min(count, 7)]
@@ -56,7 +52,7 @@ extension Game {
     mutating func determinizedWorld(for me: Int) -> Game {
         var world = self
         world.rng = SplitMix64(seed: rng.next())
-        world.searchPlayers = [false, false]
+        world.searchPlayers = SidePair(false, false)
         world.tracing = false
         world.players[me].deck.shuffle(using: &world.rng)
         let rival = 1 - me
@@ -85,30 +81,25 @@ extension Game {
         let totalEddies = player.eddiesReady + player.eddiesSpent
 
         if !player.flags.sold, player.hand.count >= 2, totalEddies < 8 {
-            let sellable = Set(player.hand.filter { card($0).sellable && card($0).kind != .legend })
+            let sellable = Set(player.hand.filter { stats($0).isSellable && stats($0).kind != .legend })
             for id in sellable.sorted(by: { keepValue(p, $0) < keepValue(p, $1) }).prefix(3) { actions.append(.sell(id)) }
         }
         if !player.flags.called, mana >= 1, player.legends.contains(where: { !$0.faceUp }) { actions.append(.call) }
 
         for id in Set(player.hand).sorted() {
-            let c = card(id)
-            guard effectiveCost(p, c) <= mana else { continue }
-            switch c.kind {
+            guard effectiveCost(p, id) <= mana else { continue }
+            switch stats(id).kind {
             case .unit:
                 actions.append(.play(id, nil))
             case .gear:
-                for option in equipTargets(p, gear: c).prefix(3) { actions.append(.play(id, option.target)) }
+                for option in equipTargets(p, gear: id).prefix(3) { actions.append(.play(id, option.target)) }
             case .program:
-                if programValue(p, c) != nil { actions.append(.play(id, nil)) }
+                if playValue(p, id) != nil { actions.append(.play(id, nil)) }
             case .legend:
                 break
             }
         }
-        if player.legends.contains(where: { $0.faceUp && !$0.spent && card($0.cardId).behavior == .riverWard }) {
-            for id in Set(player.hand).sorted() where card(id).kind == .gear && card(id).costValue <= 2 && equipTarget(p, gear: card(id)) != nil {
-                actions.append(.riverWard(id))
-            }
-        }
+        actions.append(contentsOf: distinctAbilityActions(p, timing: .mainAction))
         for slot in player.legends.indices where goSoloValue(p, slot: slot) != nil { actions.append(.goSolo(slot)) }
         for attacker in attackersAvailable(p) {
             let attackerPower = power(p, attacker, attacking: true)
@@ -117,9 +108,23 @@ extension Game {
                 actions.append(.attack(attacker.uid, .unit(target.uid)))
             }
         }
-        if player.legends.contains(where: { $0.faceUp && !$0.spent && card($0.cardId).behavior == .hanako }) { actions.append(.hanako) }
-        if !player.flags.altTrashUsed, player.legends.contains(where: { $0.faceUp && !$0.spent && card($0.cardId).behavior == .altSoulkiller }) { actions.append(.altReplay) }
+        actions.append(contentsOf: distinctAbilityActions(p, timing: .beforeAttacks))
+        actions.append(contentsOf: distinctAbilityActions(p, timing: .endOfMainPhase))
         return actions
+    }
+
+    func distinctAbilityActions(_ p: Int, timing: AbilityTiming) -> [SearchAction] {
+        var kept: [AbilityUse] = []
+        for use in abilityUses(p, timing: timing).sorted(by: { targetOrder($0.option.target) < targetOrder($1.option.target) })
+        where !kept.contains(where: { $0.source == use.source && $0.option.ability == use.option.ability && $0.option.target == use.option.target }) {
+            kept.append(use)
+        }
+        return kept.map(SearchAction.ability)
+    }
+
+    func targetOrder(_ target: AbilityTarget) -> Int {
+        if case .card(let id) = target { return id }
+        return -1
     }
 
     mutating func apply(_ action: SearchAction, _ p: Int) -> Bool {
@@ -128,10 +133,7 @@ extension Game {
             return true
         case .sell(let id):
             guard !players[p].flags.sold, let index = players[p].hand.firstIndex(of: id) else { return false }
-            players[p].hand.remove(at: index)
-            players[p].eddiesReady += 1
-            players[p].flags.sold = true
-            note("P\(p) sells \(card(id).name)")
+            sellFromHand(p, handIndex: index)
             return true
         case .call:
             guard !players[p].flags.called, availableMana(p) >= 1,
@@ -139,15 +141,12 @@ extension Game {
             callLegend(p, slot, free: false)
             return players[p].flags.called
         case .play(let id, let equip):
+            guard players[p].hand.contains(id) else { return false }
+            prepareToPlay(p, id)
             guard let index = players[p].hand.firstIndex(of: id) else { return false }
-            let c = card(id)
-            if c.kind == .program { prepareAltDiscount(p, c) }
             return playFromHand(p, handIndex: index, equipTo: equip)
-        case .riverWard(let id):
-            guard let index = players[p].hand.firstIndex(of: id) else { return false }
-            let before = players[p].hand.count
-            playRiverWardGear(p, handIndex: index)
-            return players[p].hand.count < before
+        case .ability(let use):
+            return activate(p, use)
         case .goSolo(let slot):
             let before = players[p].field.count
             goSolo(p, slot: slot)
@@ -157,16 +156,9 @@ extension Game {
             if case .unit(let targetUid) = target {
                 guard validUnitTargets(p, players[p].field[index]).contains(where: { $0.uid == targetUid }) else { return false }
             }
-            pumpBeforeAttack(p, uid: uid)
+            prepareAttack(p, uid: uid)
             performAttack(p, attackerUid: uid, target: target)
             return true
-        case .hanako:
-            let before = players[p].legends.filter { $0.spent }.count
-            useHanako(p)
-            return players[p].legends.filter { $0.spent }.count > before
-        case .altReplay:
-            replayProgramFromTrash(p)
-            return players[p].flags.altTrashUsed
         }
     }
 
@@ -201,7 +193,7 @@ extension Game {
     }
 
     mutating func searchMainPhase(_ p: Int) {
-        let config = Game.searchConfig
+        let config = searchConfig
         var steps = 0
         while steps < 18, !isOver {
             steps += 1

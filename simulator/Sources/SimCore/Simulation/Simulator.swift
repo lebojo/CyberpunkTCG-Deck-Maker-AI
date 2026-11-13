@@ -1,26 +1,28 @@
 import Foundation
 
-struct GameSummary: Sendable {
-    let winner: Int?
-    let reason: WinReason?
-    let turns: Int
-    let firstPlayer: Int
-    let mulligans: [Bool]
+public struct GameSummary: Sendable {
+    public let winner: Int?
+    public let reason: WinReason?
+    public let turns: Int
+    public let firstPlayer: Int
+    public let mulligans: [Bool]
 }
 
-struct DuelStats: Sendable {
-    var games = 0
-    var winsA = 0
-    var winsB = 0
-    var draws = 0
-    var winsAWhenFirst = 0
-    var gamesAWhenFirst = 0
-    var winsAWhenSecond = 0
-    var gamesAWhenSecond = 0
-    var turnSum = 0
-    var reasons: [String: Int] = [:]
-    var mulligansA = 0
-    var mulligansB = 0
+public struct DuelStats: Sendable {
+    public internal(set) var games = 0
+    public internal(set) var winsA = 0
+    public internal(set) var winsB = 0
+    public internal(set) var draws = 0
+    public internal(set) var winsAWhenFirst = 0
+    public internal(set) var gamesAWhenFirst = 0
+    public internal(set) var winsAWhenSecond = 0
+    public internal(set) var gamesAWhenSecond = 0
+    public internal(set) var turnSum = 0
+    public internal(set) var reasons: [String: Int] = [:]
+    public internal(set) var mulligansA = 0
+    public internal(set) var mulligansB = 0
+
+    public init() {}
 
     mutating func add(_ summary: GameSummary) {
         games += 1
@@ -65,9 +67,9 @@ struct DuelStats: Sendable {
         }
     }
 
-    var scoreA: Double { games == 0 ? 0 : (Double(winsA) + 0.5 * Double(draws)) / Double(games) }
+    public var scoreA: Double { games == 0 ? 0 : (Double(winsA) + 0.5 * Double(draws)) / Double(games) }
 
-    var confidenceMargin: Double {
+    public var confidenceMargin: Double {
         guard games > 0 else { return 0 }
         let n = Double(games)
         let p = scoreA
@@ -75,11 +77,11 @@ struct DuelStats: Sendable {
     }
 }
 
-enum Simulator {
-    static func playOne(catalog: CardCatalog, decks: [DeckList], index: Int, seed: UInt64, search: [Bool], tracing: Bool = false) -> (summary: GameSummary, trace: [String]) {
+public enum Simulator {
+    public static func playOne(catalog: CardCatalog, decks: [DeckList], index: Int, seed: UInt64, search: [Bool], config: SearchConfig = SearchConfig(), tracing: Bool = false) -> (summary: GameSummary, trace: [String]) {
         let gameSeed = seed &+ UInt64(index) &* 0x9E37_79B9_7F4A_7C15
         let first = index % 2
-        var game = Game(catalog: catalog, decks: decks, seed: gameSeed, firstPlayer: first, tracing: tracing, search: search)
+        var game = Game(catalog: catalog, decks: decks, seed: gameSeed, firstPlayer: first, tracing: tracing, search: search, config: config)
         game.playGame()
         let summary: GameSummary
         switch game.outcome {
@@ -88,26 +90,27 @@ enum Simulator {
         default:
             summary = GameSummary(winner: nil, reason: nil, turns: game.turn, firstPlayer: first, mulligans: game.players.map { $0.mulliganed })
         }
-        return (summary, game.log.lines)
+        return (summary, game.traceLines)
     }
 
-    static func winner(catalog: CardCatalog, decks: [DeckList], seed: UInt64, firstPlayer: Int, search: [Bool]) -> Int? {
-        var game = Game(catalog: catalog, decks: decks, seed: seed, firstPlayer: firstPlayer, tracing: false, search: search)
+    public static func winner(catalog: CardCatalog, decks: [DeckList], seed: UInt64, firstPlayer: Int, search: [Bool], config: SearchConfig = SearchConfig()) -> Int? {
+        var game = Game(catalog: catalog, decks: decks, seed: seed, firstPlayer: firstPlayer, tracing: false, search: search, config: config)
         game.playGame()
         if case .win(let player, _) = game.outcome { return player }
         return nil
     }
 
-    static func duel(catalog: CardCatalog, a: DeckList, b: DeckList, games: Int, seed: UInt64, workers: Int, search: [Bool]) async -> DuelStats {
+    public static func duel(catalog: CardCatalog, a: DeckList, b: DeckList, games: Int, seed: UInt64, workers: Int, search: [Bool], config: SearchConfig = SearchConfig()) async -> DuelStats {
         let chunk = max(1, games / (workers * 4))
         return await withTaskGroup(of: DuelStats.self) { group in
             var start = 0
             while start < games {
                 let range = start..<min(games, start + chunk)
                 group.addTask {
+                    let local = catalog.isolatedCopy()
                     var stats = DuelStats()
                     for index in range {
-                        stats.add(playOne(catalog: catalog, decks: [a, b], index: index, seed: seed, search: search).summary)
+                        stats.add(playOne(catalog: local, decks: [a, b], index: index, seed: seed, search: search, config: config).summary)
                     }
                     return stats
                 }

@@ -1,18 +1,27 @@
 import Foundation
 
-struct DeckList: Sendable {
-    let name: String
-    let legends: [Int]
-    let main: [Int]
-    let problems: [String]
+public struct DeckList: Sendable {
+    public let name: String
+    public let legends: [Int]
+    public let main: [Int]
+    public let problems: [String]
 
-    static func load(path: String, catalog: CardCatalog) throws -> DeckList {
+    public init(name: String, legends: [Int], main: [Int], problems: [String] = []) {
+        self.name = name
+        self.legends = legends
+        self.main = main
+        self.problems = problems
+    }
+
+    public var allCards: [Int] { legends + main }
+
+    public static func load(path: String, catalog: CardCatalog) throws -> DeckList {
         let text = try String(contentsOfFile: path, encoding: .utf8)
         let fallback = ((path as NSString).lastPathComponent as NSString).deletingPathExtension
         return parse(text: text, fallbackName: fallback, catalog: catalog)
     }
 
-    static func parse(text: String, fallbackName: String, catalog: CardCatalog) -> DeckList {
+    public static func parse(text: String, fallbackName: String, catalog: CardCatalog) -> DeckList {
         var name = fallbackName
         var legends: [Int] = []
         var main: [Int] = []

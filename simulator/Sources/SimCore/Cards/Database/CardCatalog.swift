@@ -1,97 +1,106 @@
 import Foundation
 
-struct RawCard: Codable, Sendable {
-    let name: String
-    let canonical_base_name: String?
-    let canonical_name: String?
-    let display_name: String?
-    let card_type: String
-    let color: String?
-    let cost: Int?
-    let power: Int?
-    let ram: Int?
-    let is_eddiable: Bool?
-    let classifications: [String]?
-    let rules_text: String?
-    let legality: String?
-}
+public struct CardStats: Sendable {
+    public let kind: CardKind
+    public let color: CardColor?
+    public let cost: Int?
+    public let costValue: Int
+    public let power: Int
+    public let isSellable: Bool
+    public let mentionsMinGig: Bool
 
-struct RawPage: Codable, Sendable {
-    let items: [RawCard]
-    let total: Int
-}
-
-enum CatalogError: Error, CustomStringConvertible {
-    case network(String)
-
-    var description: String {
-        switch self {
-        case .network(let message): return "Impossible de charger les cartes : \(message)"
-        }
+    init(_ data: CardData) {
+        kind = data.kind
+        color = data.color
+        cost = data.cost
+        costValue = data.costValue
+        power = data.power
+        isSellable = data.isSellable
+        mentionsMinGig = data.mentionsMinGig
     }
 }
 
-struct CardCatalog: Sendable {
-    let cards: [Card]
+struct CardProfile: Sendable {
+    let listens: EventMask
+    let keywords: Keyword
+    let scopes: ModifierScopes
+    let hints: AIHints
+    let abilityTimings: AbilityTimings
+    let isDedicated: Bool
+
+    init(_ card: any GameCard) {
+        listens = card.listens
+        keywords = card.keywords
+        scopes = card.modifierScopes
+        hints = card.hints
+        abilityTimings = AbilityTimings(card.abilities.map(\.timing))
+        isDedicated = !(card is VanillaCard)
+    }
+}
+
+public final class CardCatalog: Sendable {
+    public let data: [CardData]
+    let cards: [any GameCard]
+    let stats: [CardStats]
+    let profiles: [CardProfile]
+    let abilities: [[ActivatedAbility]]
     let idByName: [String: Int]
+    let idByKey: [String: Int]
+    let registry: CardRegistry
 
-    init(raw: [RawCard]) {
-        var built: [Card] = []
-        var index: [String: Int] = [:]
-        for (offset, item) in raw.enumerated() {
-            guard let kind = CardKind(rawValue: item.card_type) else { continue }
-            let fullName = item.canonical_name ?? item.display_name ?? item.name
-            let card = Card(
-                id: offset,
-                name: fullName,
-                kind: kind,
-                color: item.color ?? "",
-                cost: item.cost,
-                power: item.power ?? 0,
-                sellable: item.is_eddiable ?? false,
-                tags: Set((item.classifications ?? []).map { $0.lowercased() }),
-                text: (item.rules_text ?? "").trimmingCharacters(in: .whitespacesAndNewlines),
-                behavior: Behavior(name: fullName)
-            )
-            built.append(card)
-            index[Behavior.normalize(fullName)] = card.id
-        }
+    public init(data: [CardData], registry: CardRegistry = .standard) {
+        self.data = data
+        self.registry = registry
+        let built = data.map { registry.make($0) }
         cards = built
-        idByName = index
-    }
-
-    func id(named name: String) -> Int? {
-        idByName[Behavior.normalize(name)]
-    }
-
-    static func load(cachePath: String) async throws -> CardCatalog {
-        if let data = FileManager.default.contents(atPath: cachePath),
-           let raw = try? JSONDecoder().decode([RawCard].self, from: data) {
-            return CardCatalog(raw: raw)
+        stats = data.map(CardStats.init)
+        profiles = built.map(CardProfile.init)
+        abilities = built.map(\.abilities)
+        var names: [String: Int] = [:]
+        var keys: [String: Int] = [:]
+        for (id, entry) in data.enumerated() {
+            names[CardName.normalize(entry.canonicalName)] = id
+            keys[entry.key] = id
         }
-        let raw = try await fetchAll()
-        let directory = (cachePath as NSString).deletingLastPathComponent
-        try? FileManager.default.createDirectory(atPath: directory, withIntermediateDirectories: true)
-        try? JSONEncoder().encode(raw).write(to: URL(fileURLWithPath: cachePath))
-        return CardCatalog(raw: raw)
+        idByName = names
+        idByKey = keys
     }
 
-    private static func fetchAll() async throws -> [RawCard] {
-        var items: [RawCard] = []
-        var total = Int.max
-        while items.count < total {
-            guard let url = URL(string: "https://api.netdeck.gg/api/cards/cyberpunk?limit=100&offset=\(items.count)") else {
-                throw CatalogError.network("URL invalide")
-            }
-            let (data, response) = try await URLSession.shared.data(from: url)
-            guard (response as? HTTPURLResponse)?.statusCode == 200 else {
-                throw CatalogError.network("réponse HTTP inattendue")
-            }
-            let page = try JSONDecoder().decode(RawPage.self, from: data)
-            total = page.total
-            if page.items.isEmpty { break }
-            items.append(contentsOf: page.items)
-        }
-        return items
+    public static func embedded() throws -> CardCatalog {
+        CardCatalog(data: try CardDatabase.load())
+    }
+
+    public func isolatedCopy() -> CardCatalog {
+        CardCatalog(data: data.map(\.isolatedCopy), registry: registry)
+    }
+
+    public var count: Int { data.count }
+
+    public func id(named name: String) -> Int? {
+        idByName[CardName.normalize(name)]
+    }
+
+    public func id(key: String) -> Int? {
+        idByKey[key]
+    }
+
+    public func isDedicated(_ id: Int) -> Bool {
+        profiles[id].isDedicated
+    }
+
+    public func implementationName(_ id: Int) -> String {
+        String(describing: type(of: cards[id]))
+    }
+}
+
+public enum CardName {
+    public static func normalize(_ name: String) -> String {
+        name.lowercased()
+            .replacingOccurrences(of: "—", with: "-")
+            .replacingOccurrences(of: "–", with: "-")
+            .replacingOccurrences(of: " - ", with: "-")
+            .replacingOccurrences(of: "’", with: "'")
+            .split(separator: " ", omittingEmptySubsequences: true)
+            .joined(separator: " ")
     }
 }
