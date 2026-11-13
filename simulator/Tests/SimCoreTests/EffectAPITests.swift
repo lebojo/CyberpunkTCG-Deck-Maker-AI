@@ -49,7 +49,8 @@ final class EffectAPITests: XCTestCase {
     }
 
     func testVanillaCardsReportTheirMissingText() {
-        let status = CoverageReport.status(of: Fixtures.id("delamain-rideshare-ai"), in: Fixtures.catalog)
+        let bare = CardCatalog(data: Fixtures.catalog.data, registry: CardRegistry(factories: [:]))
+        let status = CoverageReport.status(of: Fixtures.id("delamain-rideshare-ai", in: bare), in: bare)
         guard case .missing(let lines) = status else { return XCTFail("Delamain devrait être à coder") }
         XCTAssertEqual(lines, ["{Play} Draw 2."])
     }
