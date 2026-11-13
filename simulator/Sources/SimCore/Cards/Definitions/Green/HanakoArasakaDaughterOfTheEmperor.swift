@@ -22,7 +22,7 @@ struct HanakoArasakaDaughterOfTheEmperor: GameCard {
               !context.gigs().isEmpty, !context.gigs(of: context.rival).isEmpty,
               let swap = context.bestGigSwap(margin: 2) else { return false }
         context.spendLegend(slot: slot)
-        context.swapGigs(mine: swap.mine, theirs: swap.theirs, notifyingRival: false)
+        context.swapGigs(mine: swap.mine, theirs: swap.theirs)
         return true
     }
 }
