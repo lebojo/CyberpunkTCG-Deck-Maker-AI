@@ -9,14 +9,10 @@ struct MeredithStoutStoneColdCorpo: GameCard {
     }
 
     func action(_ event: GameEvent, in context: inout EffectContext) {
-        guard case .gigsAlteredByRival = event, isFirstMeredithOnField(context) else { return }
+        guard case .gigsAlteredByRival = event else { return }
         let trash = context.trash()
         guard let best = trash.indices.max(by: { context.keepValue(trash[$0]) < context.keepValue(trash[$1]) }),
               let recovered = context.takeFromTrash(at: best) else { return }
         context.addToHand(recovered)
-    }
-
-    private func isFirstMeredithOnField(_ context: EffectContext) -> Bool {
-        context.field().first { $0.cardId == context.cardId }?.uid == context.selfUid
     }
 }
