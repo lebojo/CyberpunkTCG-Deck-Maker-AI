@@ -4,9 +4,10 @@ struct VStreetkid: GameCard {
 
     func action(_ event: GameEvent, in context: inout EffectContext) {
         guard case .calledAsLegend = event, context.isAboutItself else { return }
-        let milled = context.trashTop(3)
-        guard let pick = milled.first(where: { context.data($0).has(.braindance) && context.stats($0).kind == .program }) else { return }
-        while context.takeLastFromTrash(pick) {}
+        _ = context.trashTop(3)
+        let braindancePrograms = context.trash().filter { context.data($0).has(.braindance) && context.stats($0).kind == .program }
+        guard let pick = braindancePrograms.max(by: { context.keepValue($0) < context.keepValue($1) }),
+              context.takeLastFromTrash(pick) else { return }
         context.addToHand(pick)
     }
 }
