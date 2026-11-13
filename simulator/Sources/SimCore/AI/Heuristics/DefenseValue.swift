@@ -4,17 +4,20 @@ struct IncomingAttacker: Sendable, Hashable {
     var unblockable: Bool
 }
 
-enum DefenseValue {
-    static func steals(_ power: Int) -> Int { power >= 1 ? power / 10 + 1 : 0 }
+struct GuardContext: Sendable {
+    var incoming: [IncomingAttacker]
+    var fullDefense: Double
+}
 
-    static func of(blockers: [Int], attackers: [IncomingAttacker], stealWorth: (Int) -> Double) -> Double {
+enum DefenseValue {
+    static func of(blockers: [Int], attackers: [IncomingAttacker], attackWorth: (Int) -> Double) -> Double {
         var available = blockers.sorted()
         var value = 0.0
         let ordered = attackers.filter { !$0.unblockable }.sorted { ($0.power, $0.weight) > ($1.power, $1.weight) }
         for attacker in ordered {
             guard let index = available.firstIndex(where: { $0 >= attacker.power }) else { continue }
             available.remove(at: index)
-            value += attacker.weight * stealWorth(steals(attacker.power))
+            value += attacker.weight * attackWorth(attacker.power)
         }
         return value
     }
@@ -68,12 +71,27 @@ extension Game {
 
     func defenseValue(_ d: Int, excluding uid: Int? = nil) -> Double {
         guard !players[d].gigs.isEmpty else { return 0 }
-        return DefenseValue.of(blockers: readyBlockerPowers(d, excluding: uid), attackers: incomingAttackers(against: d), stealWorth: { stealSwing(defender: d, steals: $0) })
+        return defenseValue(d, excluding: uid, against: incomingAttackers(against: d))
+    }
+
+    func defenseValue(_ d: Int, excluding uid: Int?, against incoming: [IncomingAttacker]) -> Double {
+        guard !players[d].gigs.isEmpty else { return 0 }
+        return DefenseValue.of(blockers: readyBlockerPowers(d, excluding: uid), attackers: incoming, attackWorth: { stealSwing(defender: d, steals: stealCount(forPower: $0)) })
+    }
+
+    func guardContext(_ p: Int, attackers: [FieldUnit]) -> GuardContext? {
+        guard !players[p].gigs.isEmpty, attackers.contains(where: { isBlocker(p, $0) }) else { return nil }
+        let incoming = incomingAttackers(against: p)
+        return GuardContext(incoming: incoming, fullDefense: defenseValue(p, excluding: nil, against: incoming))
     }
 
     func guardCost(_ p: Int, _ unit: FieldUnit) -> Double {
-        guard isBlocker(p, unit) else { return 0 }
-        return Game.guardWeight * (defenseValue(p) - defenseValue(p, excluding: unit.uid))
+        guardCost(p, unit, context: guardContext(p, attackers: [unit]))
+    }
+
+    func guardCost(_ p: Int, _ unit: FieldUnit, context: GuardContext?) -> Double {
+        guard let context, isBlocker(p, unit) else { return 0 }
+        return Game.guardWeight * (context.fullDefense - defenseValue(p, excluding: unit.uid, against: context.incoming))
     }
 
     func defenseBalance(_ me: Int) -> Double {

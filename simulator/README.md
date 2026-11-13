@@ -21,6 +21,7 @@ swift build -c release
 - `--opponent-budget N` : budget de l'adversaire simulé dans la recherche (défaut 1, 0 = adversaire glouton comme avant).
 - `--bluff on|off` : bluff de l'IA (défaut `off`, voir « L'IA »).
 - Outils de dev : `--ai-old b|all` fait jouer l'ancienne IA (sans bluff, défense ni adversaire simulé) au 2e deck ou aux deux ; `--bluff-ab` active le bluff pour le 1er deck seulement.
+- Combinaisons : `--bluff-ab` ne se combine pas avec `--bluff` ; `--bluff on` et `--bluff-ab` sont refusés avec `--ai-old all` (bluff désactivé) et avec `--ai greedy` (le bluff n'existe qu'en recherche). Les sièges asymétriques (`--ai versus`, `--ai-old b`, `--bluff-ab`) sont refusés en matrice (le score serait reflété comme symétrique) ; en tournoi, le 1er deck joue avec l'IA du 1er siège et tous les autres avec celle du 2e.
 - `--samples N --depth N --shortlist N` : réglages de la recherche (3 mains adverses tirées par décision, 3 tours projetés, 4 coups approfondis).
 - `--md fichier.md` : écrit aussi le tableau des résultats au format Markdown (tournoi, matrice ou duel).
 - `--seed` pour reproduire un résultat, `--workers N` pour limiter le parallélisme.
@@ -47,10 +48,12 @@ DeckSim : tournois en cours
 ```
 
 - La largeur suit le terminal (ioctl, sinon variable `COLUMNS`, sinon 80) ; sur un terminal étroit, les colonnes les moins importantes disparaissent et les noms sont tronqués.
-- Le curseur est caché pendant l'affichage et rétabli à la fin, y compris après Ctrl-C (code de sortie 130).
+- Le curseur est caché pendant l'affichage et rétabli à la fin, y compris après Ctrl-C (code de sortie 130). Les gestionnaires de signaux précédents sont rétablis à la fin de l'affichage.
 - Le tableau est effacé avant le rapport final, qui est identique à celui de `--no-live` (texte et `--md`).
-- Si la sortie n'est pas un terminal (redirection vers un fichier, `nohup`), aucune séquence d'échappement n'est écrite : une seule ligne d'état toutes les 30 secondes (`[46.5%] écoulé 5s, reste ~6s, 17312.5 parties/s, en tête : ...`), puis le rapport.
-- En mode matrice, « Duels » et « Gagnés » comptent les duels terminés et ceux où le deck est au-dessus de 50 %.
+- L'affichage en direct (séquences ANSI et lignes d'état) est écrit sur la sortie d'erreur ; la sortie standard ne contient que le rapport. `DeckSim ... > rapport.txt` ou `| tee` gardent donc un rapport propre tout en affichant la progression dans le terminal.
+- Si la sortie d'erreur n'est pas un terminal (`2> fichier`, `nohup`), aucune séquence d'échappement n'est écrite : une seule ligne d'état toutes les 30 secondes (`[46.5%] écoulé 5s, reste ~6s, 17312.5 parties/s, en tête : ...`).
+- Chaque image est tronquée à la largeur relue à chaque rafraîchissement ; si le terminal rétrécit et replie l'image précédente, le redessin remonte du nombre de lignes repliées. L'affichage tourne sur un thread dédié (priorité interactive), il n'attend donc pas les workers.
+- En mode matrice, « Duels » et « Gagnés » comptent les duels terminés et ceux où le deck est au-dessus de 50 % (un duel à exactement 50 % compte une demi-victoire pour chacun). La progression avance avec les parties du duel en cours.
 - Surcoût mesuré : indétectable (moins de 1 % du temps CPU, mises à jour par match ou par lot de 16 parties).
 
 ## Base de cartes
@@ -125,7 +128,7 @@ Divergences connues, conservées volontairement pour que la non-régression rest
 3. approfondit les meilleurs coups sur 3 tours (réponse adverse, son prochain tour, puis la réponse suivante), avec un poids décroissant ;
 4. joue le coup au meilleur score moyen et recommence jusqu'à ce que « finir le tour » soit le meilleur.
 
-Les deux sièges utilisent la même politique. Dans l'approfondissement, le premier tour adverse simulé est joué par cette même politique à budget réduit (1 main tirée, pas d'approfondissement, choix entre plans de tour complets : finir, tour glouton, garder ses Blockers, bluffer ; `--opponent-budget N` ajoute N-1 décisions coup par coup avant ce choix), puis glouton au-delà. Coût mesuré (500 parties, 10 cœurs) : Meta1/Meta2 2,6 s → 6,0 s, Meta3/Maelstrom 40 5,0 s → 8,4 s (≈ 1,7 à 2,3×).
+Les deux sièges utilisent la même politique. Dans l'approfondissement, le premier tour adverse simulé est joué par cette même politique à budget réduit (1 main tirée, pas d'approfondissement, choix entre plans de tour complets : finir, tour glouton, garder ses Blockers, bluffer ; `--opponent-budget N` ajoute N-1 décisions coup par coup avant ce choix), puis glouton au-delà. L'adversaire simulé reprend la politique réelle de son siège (bluff, ancienne IA, glouton en `--ai versus`), avec le budget de recherche du joueur qui simule. Coût mesuré (500 parties, 10 cœurs) : Meta1/Meta2 2,6 s → 6,0 s, Meta3/Maelstrom 40 5,0 s → 8,4 s (≈ 1,7 à 2,3×).
 
 **Quick possibles.** Sans jamais lire la main cachée, l'IA estime la probabilité que l'adversaire ait un Quick payable : loi hypergéométrique sur les cartes non vues (main non révélée + pioche, le deck étant connu), en ne comptant que les Quick dont le coût tient dans le mana ouvert. Une attaque marginale (écart de puissance ≤ 3 face à la cible ou à un Blocker prêt) est pénalisée en proportion.
 

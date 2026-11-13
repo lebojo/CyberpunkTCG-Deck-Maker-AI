@@ -18,6 +18,7 @@ struct Options {
     var coverage = false
     var live = true
     var bluff = SearchConfig.defaultBluff
+    var bluffExplicit = false
     var opponentBudget = SearchConfig().opponentBudget
     var oldSeats = OldSeats.none
     var bluffSeats = BluffSeats.both
@@ -79,7 +80,8 @@ enum OptionParser {
       --bluff on|off : active ou non le bluff de l'IA (finir son tour en gardant du mana et des Units prêtes)
       --opponent-budget N : décisions cherchées par tour adverse simulé dans la recherche (0 = adversaire glouton, défaut 1)
       --ai-old b|all : outil de dev, l'ancienne IA (avant bluff, défense et adversaire simulé) joue le 2e deck (b) ou les deux (all)
-      --bluff-ab : outil de dev, bluff activé pour le 1er deck seulement (test A/B)
+      --bluff-ab : outil de dev, bluff activé pour le 1er deck seulement (test A/B, sans --bluff ni --ai-old all ni --ai greedy)
+      En tournoi, --ai versus / --ai-old b / --bluff-ab : le 1er deck a l'IA du 1er siège, tous les autres celle du 2e. Interdits en matrice.
     """
 
     static func parse(_ arguments: [String]) throws -> Options {
@@ -112,6 +114,7 @@ enum OptionParser {
             case "--bluff":
                 guard let value = iterator.next(), ["on", "off"].contains(value) else { throw CLIError.usage("--bluff attend on ou off") }
                 options.bluff = value == "on"
+                options.bluffExplicit = true
             case "--opponent-budget":
                 guard let value = iterator.next(), let budget = Int(value), budget >= 0 else { throw CLIError.usage("--opponent-budget attend un entier positif ou nul") }
                 options.opponentBudget = budget
@@ -126,7 +129,26 @@ enum OptionParser {
             }
         }
         guard options.coverage || options.deckPaths.count >= 2 else { throw CLIError.usage(usage) }
+        try validateCombinations(options)
         return options
+    }
+
+    static func validateCombinations(_ options: Options) throws {
+        let bluffWanted = options.bluffSeats == .firstOnly || (options.bluffExplicit && options.bluff)
+        if options.bluffSeats == .firstOnly && options.bluffExplicit {
+            throw CLIError.usage("--bluff-ab règle déjà le bluff (1er deck seulement) : ne pas le combiner avec --bluff")
+        }
+        if bluffWanted && options.oldSeats == .both {
+            throw CLIError.usage("--ai-old all désactive le bluff des deux decks : incompatible avec --bluff on et --bluff-ab")
+        }
+        if bluffWanted && !options.search {
+            throw CLIError.usage("le bluff n'existe qu'en mode recherche : incompatible avec --ai greedy")
+        }
+        let matrix = options.deckPaths.count >= 3 && options.tournaments == 0 && !options.trace
+        let seats = options.seatPolicies
+        if matrix && seats[0] != seats[1] {
+            throw CLIError.usage("en matrice (3 decks ou plus), les deux sièges doivent avoir la même IA : --ai versus, --ai-old b et --bluff-ab ne sont possibles qu'en duel ou en tournoi")
+        }
     }
 
     static func positive(_ value: String?, _ name: String) throws -> Int {

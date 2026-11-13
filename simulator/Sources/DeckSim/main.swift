@@ -42,19 +42,19 @@ func run() async throws {
     if options.tournaments > 0 {
         let tracker = ProgressTracker(mode: .tournament(count: options.tournaments), deckNames: names)
         let live = options.live ? LiveDisplay.start(tracker: tracker) : nil
-        let stats = await Tournament.run(catalog: catalog, decks: decks, count: options.tournaments, bestOf: options.bestOf, seed: options.seed, workers: options.workers, policy: seats[0], progress: tracker)
-        await live?.stop()
+        let stats = await Tournament.run(catalog: catalog, decks: decks, count: options.tournaments, bestOf: options.bestOf, seed: options.seed, workers: options.workers, policies: seats, progress: tracker)
+        live?.stop()
         print(Report.tournament(decks: decks, stats: stats, bestOf: options.bestOf))
         writeMarkdown(Report.tournamentMarkdown(decks: decks, stats: stats, bestOf: options.bestOf), to: options.markdownPath)
     } else if decks.count == 2 {
         let tracker = ProgressTracker(mode: .duel(games: options.games), deckNames: names)
         let live = options.live ? LiveDisplay.start(tracker: tracker) : nil
         let stats = await Simulator.duel(catalog: catalog, a: decks[0], b: decks[1], games: options.games, seed: options.seed, workers: options.workers, policies: seats, progress: DuelProgress(tracker: tracker, a: 0, b: 1))
-        await live?.stop()
+        live?.stop()
         print(Report.duel(a: decks[0], b: decks[1], stats: stats))
         writeMarkdown(Report.duelMarkdown(a: decks[0], b: decks[1], stats: stats), to: options.markdownPath)
     } else {
-        let tracker = ProgressTracker(mode: .matrix(duels: decks.count * (decks.count - 1) / 2), deckNames: names)
+        let tracker = ProgressTracker(mode: .matrix(duels: decks.count * (decks.count - 1) / 2, gamesPerDuel: options.games), deckNames: names)
         let live = options.live ? LiveDisplay.start(tracker: tracker) : nil
         var scores = Array(repeating: Array<Double?>(repeating: nil, count: decks.count), count: decks.count)
         for i in decks.indices {
@@ -66,7 +66,7 @@ func run() async throws {
                 scores[j][i] = 1 - stats.scoreA
             }
         }
-        await live?.stop()
+        live?.stop()
         print(Report.matrix(decks: decks, scores: scores))
         writeMarkdown(Report.matrixMarkdown(decks: decks, scores: scores), to: options.markdownPath)
     }

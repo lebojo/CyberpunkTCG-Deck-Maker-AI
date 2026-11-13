@@ -75,8 +75,9 @@ extension Game {
 
     func simulatedPolicies(for me: Int) -> SidePair<Policy> {
         let config = policies[me].config
-        var result = SidePair(Policy(search: false, config: config), Policy(search: false, config: config))
-        if config.modelsOpponent { result[1 - me] = Policy(search: true, config: config.simulatedOpponent) }
+        let rival = policies[1 - me]
+        var result = SidePair(Policy(search: false, config: config), Policy(search: false, config: rival.config))
+        if config.modelsOpponent, rival.search { result[1 - me] = Policy(search: true, config: config.simulatedOpponent(playing: rival.config)) }
         return result
     }
 
@@ -191,7 +192,7 @@ extension Game {
         var continued = branch
         continued.greedyMainPhase(p)
         continued.finishTurn(p)
-        if policies[p].config.depth == 0 { return [continued] }
+        if policies[p].config.isSimulatedOpponent { return [continued] }
         return [stopped, continued]
     }
 
@@ -216,7 +217,7 @@ extension Game {
         var steps = 0
         while steps < config.maxSteps, !isOver {
             steps += 1
-            let simulated = config.depth == 0
+            let simulated = config.isSimulatedOpponent
             let actions = simulated && steps == config.maxSteps ? planActions(p) : candidateActions(p)
             guard actions.count > 1 else {
                 if simulated { greedyMainPhase(p) }
@@ -225,11 +226,11 @@ extension Game {
             var worlds: [Game] = []
             for _ in 0..<config.samples { worlds.append(determinizedWorld(for: p)) }
             let scores = quickScores(actions, worlds: worlds, for: p)
-            guard let choice = config.depth == 0 ? scores.ranked.first : deepChoice(actions, worlds: worlds, scores: scores, config: config, for: p) else { return }
+            guard let choice = simulated ? scores.ranked.first : deepChoice(actions, worlds: worlds, scores: scores, config: config, for: p) else { return }
             let action = actions[choice]
             guard action != .endTurn, apply(action, p), !action.endsTurn else { return }
         }
-        if config.depth == 0, !isOver { greedyMainPhase(p) }
+        if config.isSimulatedOpponent, !isOver { greedyMainPhase(p) }
     }
 
     func quickScores(_ actions: [SearchAction], worlds: [Game], for p: Int) -> (mean: [Double], ranked: [Int]) {

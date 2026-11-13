@@ -122,8 +122,10 @@ extension Game {
         let threat = aware ? quickThreat(of: rival) : 0
         let rivalBlockers = players[rival].field.filter { isBlocker(rival, $0) && !$0.spent }
         let desperate = overtime || turn >= 12 || players[rival].gigs.count >= 5
-        for unit in attackersAvailable(p) where !(keepBlockersHome && isBlocker(p, unit)) {
-            let guarding = aware ? guardCost(p, unit) : 0
+        let attackers = attackersAvailable(p).filter { !(keepBlockersHome && isBlocker(p, $0)) }
+        let guardInfo = aware ? guardContext(p, attackers: attackers) : nil
+        for unit in attackers {
+            let guarding = aware ? guardCost(p, unit, context: guardInfo) : 0
             let unitHints = profile(unit.cardId).hints
             let myPower = power(p, unit, attacking: true)
             let unitValue = unitThreat(p, unit)
