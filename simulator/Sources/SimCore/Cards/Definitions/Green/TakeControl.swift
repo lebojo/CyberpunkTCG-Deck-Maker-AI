@@ -13,7 +13,13 @@ struct TakeControl: GameCard {
     }
 
     func activate(_ option: AbilityOption, in context: inout EffectContext) -> Bool {
-        context.playQuickFromHand(context.cardId)
+        guard context.playQuickFromHand(context.cardId) else { return false }
+        if let attacker = context.subjectCardId, isMachine(context.data(attacker)) { context.draw(1) }
+        return true
+    }
+
+    private func isMachine(_ card: CardData) -> Bool {
+        card.has(.ai) || card.has(.drone) || card.has(.vehicle)
     }
 
     func playValue(in query: EffectQuery) -> Double? { nil }
