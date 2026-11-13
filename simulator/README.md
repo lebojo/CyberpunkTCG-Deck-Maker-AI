@@ -22,9 +22,33 @@ swift build -c release
 - `--md fichier.md` : écrit aussi le tableau des résultats au format Markdown (tournoi, matrice ou duel).
 - `--seed` pour reproduire un résultat, `--workers N` pour limiter le parallélisme.
 - `--coverage` : liste, par couleur et par type, les cartes qui ont une implémentation dédiée, celles couvertes par leurs seuls mots-clés ou dont le texte n'est que de l'ambiance, et celles qui restent à coder. Sans deck, n'affiche que cette liste.
-- `--no-live` et `--bluff on|off` : acceptées, sans effet pour l'instant (affichage en direct et bluff à venir).
+- `--no-live` : désactive l'affichage en direct (voir plus bas). `--bluff on|off` : acceptée, sans effet pour l'instant (bluff à venir).
 
 Au lancement, les cartes des decks qui n'ont pas encore d'effet codé sont listées (elles sont jouées comme des cartes sans texte, mots-clés compris).
+
+## Affichage en direct
+
+Pendant une simulation (duel, matrice, tournois), le terminal affiche en direct, réécrit sur place deux fois par seconde : une barre de progression globale (pourcentage, temps écoulé, ETA, parties par seconde), puis un tableau par deck trié par la métrique de classement du mode (tournois gagnés en mode tournoi, win rate sinon). En mode matrice la progression compte les duels terminés et la ligne du duel en cours est affichée ; en mode duel, le win rate courant et sa marge d'erreur.
+
+```
+DeckSim : tournois en cours
+[██████████████████░░░░░░░░░░░░░░░░░░░░]  46.5%  9300/20000 tournois
+écoulé 5s  reste ~6s  17312.5 parties/s
+
+    Deck                             Tournois     % Matchs Gagnés WR matchs WR parties
+1.  Meta3 Goro Saburo Yorinobu GGR       3010 32.4%  16970  10738     63.3%      59.2%
+2.  Maelstrom Gear Rush Meredith C       2285 24.6%  16100   9101     56.5%      54.6%
+3.  Meta1 DumDum RiverWard Royce RYY     2051 22.1%  15700   8480     54.0%      52.9%
+4.  Maelstrom Gear Rush 40               1670 18.0%  14850   7273     49.0%      49.5%
+5.  Meta2 Alt Hanako Jackie BBG           284  3.1%  10390   1403     13.5%      22.9%
+```
+
+- La largeur suit le terminal (ioctl, sinon variable `COLUMNS`, sinon 80) ; sur un terminal étroit, les colonnes les moins importantes disparaissent et les noms sont tronqués.
+- Le curseur est caché pendant l'affichage et rétabli à la fin, y compris après Ctrl-C (code de sortie 130).
+- Le tableau est effacé avant le rapport final, qui est identique à celui de `--no-live` (texte et `--md`).
+- Si la sortie n'est pas un terminal (redirection vers un fichier, `nohup`), aucune séquence d'échappement n'est écrite : une seule ligne d'état toutes les 30 secondes (`[46.5%] écoulé 5s, reste ~6s, 17312.5 parties/s, en tête : ...`), puis le rapport.
+- En mode matrice, « Duels » et « Gagnés » comptent les duels terminés et ceux où le deck est au-dessus de 50 %.
+- Surcoût mesuré : indétectable (moins de 1 % du temps CPU, mises à jour par match ou par lot de 16 parties).
 
 ## Base de cartes
 

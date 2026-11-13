@@ -39,23 +39,35 @@ func run() async throws {
     }
 
     let start = Date()
+    let names = decks.map(\.name)
     if options.tournaments > 0 {
-        let stats = await Tournament.run(catalog: catalog, decks: decks, count: options.tournaments, bestOf: options.bestOf, seed: options.seed, workers: options.workers, search: options.search, config: config)
+        let tracker = ProgressTracker(mode: .tournament(count: options.tournaments), deckNames: names)
+        let live = options.live ? LiveDisplay.start(tracker: tracker) : nil
+        let stats = await Tournament.run(catalog: catalog, decks: decks, count: options.tournaments, bestOf: options.bestOf, seed: options.seed, workers: options.workers, search: options.search, config: config, progress: tracker)
+        await live?.stop()
         print(Report.tournament(decks: decks, stats: stats, bestOf: options.bestOf))
         writeMarkdown(Report.tournamentMarkdown(decks: decks, stats: stats, bestOf: options.bestOf), to: options.markdownPath)
     } else if decks.count == 2 {
-        let stats = await Simulator.duel(catalog: catalog, a: decks[0], b: decks[1], games: options.games, seed: options.seed, workers: options.workers, search: both, config: config)
+        let tracker = ProgressTracker(mode: .duel(games: options.games), deckNames: names)
+        let live = options.live ? LiveDisplay.start(tracker: tracker) : nil
+        let stats = await Simulator.duel(catalog: catalog, a: decks[0], b: decks[1], games: options.games, seed: options.seed, workers: options.workers, search: both, config: config, progress: DuelProgress(tracker: tracker, a: 0, b: 1))
+        await live?.stop()
         print(Report.duel(a: decks[0], b: decks[1], stats: stats))
         writeMarkdown(Report.duelMarkdown(a: decks[0], b: decks[1], stats: stats), to: options.markdownPath)
     } else {
+        let tracker = ProgressTracker(mode: .matrix(duels: decks.count * (decks.count - 1) / 2), deckNames: names)
+        let live = options.live ? LiveDisplay.start(tracker: tracker) : nil
         var scores = Array(repeating: Array<Double?>(repeating: nil, count: decks.count), count: decks.count)
         for i in decks.indices {
             for j in decks.indices where i < j {
-                let stats = await Simulator.duel(catalog: catalog, a: decks[i], b: decks[j], games: options.games, seed: options.seed, workers: options.workers, search: [options.search, options.search], config: config)
+                tracker.beginDuel(a: i, b: j)
+                let stats = await Simulator.duel(catalog: catalog, a: decks[i], b: decks[j], games: options.games, seed: options.seed, workers: options.workers, search: [options.search, options.search], config: config, progress: DuelProgress(tracker: tracker, a: i, b: j))
+                tracker.finishDuel(a: i, b: j, scoreA: stats.scoreA)
                 scores[i][j] = stats.scoreA
                 scores[j][i] = 1 - stats.scoreA
             }
         }
+        await live?.stop()
         print(Report.matrix(decks: decks, scores: scores))
         writeMarkdown(Report.matrixMarkdown(decks: decks, scores: scores), to: options.markdownPath)
     }

@@ -32,7 +32,7 @@ public struct TournamentStats: Sendable {
 }
 
 public enum Tournament {
-    public static func run(catalog: CardCatalog, decks: [DeckList], count: Int, bestOf: Int, seed: UInt64, workers: Int, search: Bool, config: SearchConfig = SearchConfig()) async -> TournamentStats {
+    public static func run(catalog: CardCatalog, decks: [DeckList], count: Int, bestOf: Int, seed: UInt64, workers: Int, search: Bool, config: SearchConfig = SearchConfig(), progress: ProgressTracker? = nil) async -> TournamentStats {
         let chunk = max(1, count / (workers * 4))
         return await withTaskGroup(of: TournamentStats.self) { group in
             var start = 0
@@ -42,7 +42,7 @@ public enum Tournament {
                     let local = catalog.isolatedCopy()
                     var stats = TournamentStats(deckCount: decks.count)
                     for index in range {
-                        playOne(catalog: local, decks: decks, bestOf: bestOf, search: search, config: config, seed: seed &+ UInt64(index) &* 0xD1B5_4A32_D192_ED03, into: &stats)
+                        playOne(catalog: local, decks: decks, bestOf: bestOf, search: search, config: config, seed: seed &+ UInt64(index) &* 0xD1B5_4A32_D192_ED03, progress: progress, into: &stats)
                     }
                     return stats
                 }
@@ -54,7 +54,7 @@ public enum Tournament {
         }
     }
 
-    static func playOne(catalog: CardCatalog, decks: [DeckList], bestOf: Int, search: Bool, config: SearchConfig, seed: UInt64, into stats: inout TournamentStats) {
+    static func playOne(catalog: CardCatalog, decks: [DeckList], bestOf: Int, search: Bool, config: SearchConfig, seed: UInt64, progress: ProgressTracker? = nil, into stats: inout TournamentStats) {
         var rng = SplitMix64(seed: seed)
         var remaining = Array(decks.indices)
         remaining.shuffle(using: &rng)
@@ -70,7 +70,9 @@ public enum Tournament {
                 let a = remaining[index]
                 let b = remaining[index + 1]
                 let isFinal = remaining.count == 2
+                let before = (stats.gamesPlayed[a], stats.gamesWon[a], stats.gamesWon[b])
                 let winner = playMatch(catalog: catalog, decks: decks, a: a, b: b, bestOf: bestOf, search: search, config: config, rng: &rng, stats: &stats)
+                progress?.recordMatch(a: a, b: b, winner: winner, games: GameBatch(games: stats.gamesPlayed[a] - before.0, winsA: stats.gamesWon[a] - before.1, winsB: stats.gamesWon[b] - before.2))
                 stats.matchesPlayed[a] += 1
                 stats.matchesPlayed[b] += 1
                 stats.matchesWon[winner] += 1
@@ -84,6 +86,7 @@ public enum Tournament {
             }
             remaining = next
         }
+        progress?.finishTournament(champion: remaining[0])
     }
 
     static func playMatch(catalog: CardCatalog, decks: [DeckList], a: Int, b: Int, bestOf: Int, search: Bool, config: SearchConfig, rng: inout SplitMix64, stats: inout TournamentStats) -> Int {
