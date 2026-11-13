@@ -9,13 +9,20 @@ struct PadreManOfTheCross: GameCard {
 
     func action(_ event: GameEvent, in context: inout EffectContext) {
         guard case .calledAsLegend = event, context.isAboutItself else { return }
-        _ = context.chooseMode(2) { mode, branch in
+        let options = [ModeOption(name: "spend a rival Unit", value: spendValue(context)), ModeOption(name: "draw 1", value: ModeOption.drawOne)]
+        _ = context.chooseMode(options) { mode, branch in
             if mode == 0 {
                 if let target = branch.bestRivalUnit(where: { !$0.spent }) { branch.spendUnit(branch.rival, uid: target.uid) }
             } else {
                 branch.draw(1)
             }
         }
+    }
+
+    private func spendValue(_ reading: some GameReading) -> Double {
+        guard let target = reading.bestRivalUnit(where: { !$0.spent }) else { return 0 }
+        let threat = reading.unitThreat(target, owner: reading.rival)
+        return reading.isBlocker(target, owner: reading.rival) ? threat : threat / 2
     }
 
     func abilityOptions(_ ability: ActivatedAbility, in query: EffectQuery) -> [AbilityOption] {

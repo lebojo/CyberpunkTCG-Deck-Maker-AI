@@ -28,7 +28,7 @@ swift build -c release
 - `--coverage` : liste, par couleur et par type, les cartes qui ont une implémentation dédiée, celles couvertes par leurs seuls mots-clés ou dont le texte n'est que de l'ambiance, et celles qui restent à coder. Sans deck, n'affiche que cette liste.
 - `--no-live` : désactive l'affichage en direct (voir plus bas).
 
-Au lancement, les cartes des decks qui n'ont pas encore d'effet codé sont listées (elles sont jouées comme des cartes sans texte, mots-clés compris).
+Un deck invalide (nombre de Légendes différent de 3, carte inconnue, main deck hors 40–50 cartes) est refusé : message d'erreur et code de sortie 1. Au lancement, les cartes des decks qui n'ont pas encore d'effet codé sont listées (elles sont jouées comme des cartes sans texte, mots-clés compris).
 
 ## Affichage en direct
 
@@ -108,7 +108,7 @@ Chaque carte est un `struct` conforme à `GameCard` : ses données viennent de `
 
 ## Ce qui est modélisé
 
-Règles : pioche, mulligan (décidé par l'IA : elle garde sa main sauf si son score est nettement sous celui d'une main tirée au hasard dans son deck), Légendes face cachée et Appel de Légende, vente de cartes (Eddies), dés de Gigs (d4 à d20), Lag, attaque, Blockers, combat, vol (1 Gig par tranche de 10 de puissance), Gears équipés aux Units et aux Légendes, Go Solo, Overtime, pioche vide.
+Règles : pioche, mulligan (décidé par l'IA : elle garde sa main sauf si son score est nettement sous celui d'une main tirée au hasard dans son deck), Légendes face cachée et Appel de Légende, vente de cartes (Eddies), dés de Gigs (d4 à d20), Lag, attaque, Blockers, combat, vol (1 Gig par tranche de 10 de puissance), Gears équipés aux Units et aux Légendes, Go Solo, Overtime, pioche vide, limite de 60 tours (partie nulle, comptée « limite de tours » dans les fins de partie). Les cartes révélées de la main ne sont plus connues de l'adversaire dès qu'un exemplaire quitte la main.
 
 Effets : les 74 cartes déjà codées avant le refactor (dont toutes celles des decks de référence) sont migrées : 72 implémentations dédiées et 2 cartes à mots-clés seuls (`KeywordCard`), plus 2 autres cartes à mots-clés seuls. `--coverage` donne la liste à jour des cartes restantes.
 

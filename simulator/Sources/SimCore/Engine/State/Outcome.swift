@@ -3,12 +3,13 @@ public enum WinReason: Sendable {
     case gigsInOvertime
     case deckOut
     case turnLimit
+    case tieInOvertime
 }
 
 public enum Outcome: Sendable {
     case ongoing
     case win(player: Int, reason: WinReason)
-    case draw
+    case draw(reason: WinReason)
 }
 
 public enum AttackTarget: Sendable, Hashable {

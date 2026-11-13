@@ -15,7 +15,7 @@ public enum Report {
         lines.append("")
         lines.append("  \(pad(a.name, 34)) \(percent(stats.scoreA))  ±\(percent(stats.confidenceMargin))  (\(stats.winsA) victoires)")
         lines.append("  \(pad(b.name, 34)) \(percent(1 - stats.scoreA))  ±\(percent(stats.confidenceMargin))  (\(stats.winsB) victoires)")
-        if stats.draws > 0 { lines.append("  égalités / limite de tours : \(stats.draws)") }
+        if stats.draws > 0 { lines.append("  égalités : \(stats.draws)") }
         lines.append("")
         if stats.gamesAWhenFirst > 0 && stats.gamesAWhenSecond > 0 {
             let first = Double(stats.winsAWhenFirst) / Double(stats.gamesAWhenFirst)
@@ -24,9 +24,12 @@ public enum Report {
         }
         lines.append("  durée moyenne : \(String(format: "%.1f", Double(stats.turnSum) / Double(max(1, stats.games)))) tours au total (≈ \(String(format: "%.1f", Double(stats.turnSum) / Double(max(1, stats.games)) / 2)) par joueur)")
         lines.append("  mulligans : \(a.name) \(percent(Double(stats.mulligansA) / Double(max(1, stats.games)))), \(b.name) \(percent(Double(stats.mulligansB) / Double(max(1, stats.games))))")
-        let reasons = stats.reasons.sorted { $0.value > $1.value }.map { "\($0.key) \(percent(Double($0.value) / Double(max(1, stats.games))))" }
-        lines.append("  fins de partie : " + reasons.joined(separator: ", "))
+        lines.append("  fins de partie : " + endings(stats))
         return lines.joined(separator: "\n")
+    }
+
+    static func endings(_ stats: DuelStats) -> String {
+        stats.reasons.sorted { $0.value > $1.value }.map { "\($0.key) \(percent(Double($0.value) / Double(max(1, stats.games))))" }.joined(separator: ", ")
     }
 
     public static func matrix(decks: [DeckList], scores: [[Double?]]) -> String {
@@ -136,6 +139,9 @@ public enum Report {
         lines.append("|---|---|---|")
         lines.append("| \(markdownCell(a.name)) | **\(percent(stats.scoreA))** | \(stats.winsA) |")
         lines.append("| \(markdownCell(b.name)) | **\(percent(1 - stats.scoreA))** | \(stats.winsB) |")
+        lines.append("")
+        if stats.draws > 0 { lines.append("Égalités : \(stats.draws).") }
+        lines.append("Fins de partie : \(markdownCell(endings(stats))).")
         return lines.joined(separator: "\n") + "\n"
     }
 }

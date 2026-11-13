@@ -7,7 +7,7 @@ extension Game {
         turn += 1
         let p = active
         if turn > Game.turnLimit {
-            outcome = .draw
+            outcome = .draw(reason: .turnLimit)
             return
         }
         if players[p].gigs.count >= 7 {
@@ -59,9 +59,7 @@ extension Game {
         resolveRequiredAttacks(p)
         if isOver { return }
         announceEndOfTurnToGears(p)
-        for unit in players[p].field where unit.defeatAtEnd {
-            defeat(p, uid: unit.uid)
-        }
+        defeatUnitsMarkedForEndOfTurn(first: p)
         broadcast(.endOfTurn, to: p)
         expireEndOfTurnTriggers()
         for side in 0..<2 {
@@ -73,6 +71,14 @@ extension Game {
             checkOvertimeWin()
         }
         active = 1 - p
+    }
+
+    mutating func defeatUnitsMarkedForEndOfTurn(first p: Int) {
+        for side in [p, 1 - p] {
+            for unit in players[side].field where unit.defeatAtEnd {
+                defeat(side, uid: unit.uid)
+            }
+        }
     }
 
     mutating func announceEndOfTurnToGears(_ p: Int) {
@@ -99,7 +105,7 @@ extension Game {
         guard overtime, !isOver else { return }
         let order = [active, 1 - active]
         let winners = order.filter { players[$0].gigs.count >= 7 }
-        if winners.count == 2 { outcome = .draw }
+        if winners.count == 2 { outcome = .draw(reason: .tieInOvertime) }
         else if let winner = winners.first { outcome = .win(player: winner, reason: .gigsInOvertime) }
     }
 }

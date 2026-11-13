@@ -29,6 +29,15 @@ extension Game {
         if revealed { players[p].revealed.append(id) }
     }
 
+    @discardableResult
+    mutating func removeFromHand(_ p: Int, at index: Int) -> Int {
+        let id = players[p].hand.remove(at: index)
+        if !players[p].revealed.isEmpty, let position = players[p].revealed.firstIndex(of: id) {
+            players[p].revealed.remove(at: position)
+        }
+        return id
+    }
+
     func knownHandCards(of p: Int) -> [Int] {
         var remaining = players[p].hand
         var known: [Int] = []
@@ -43,7 +52,7 @@ extension Game {
 
     mutating func discardWorst(_ p: Int) {
         guard let index = players[p].hand.indices.min(by: { keepValue(p, players[p].hand[$0]) < keepValue(p, players[p].hand[$1]) }) else { return }
-        players[p].trash.append(players[p].hand.remove(at: index))
+        players[p].trash.append(removeFromHand(p, at: index))
     }
 
     mutating func sellTopOfDeck(_ p: Int) {

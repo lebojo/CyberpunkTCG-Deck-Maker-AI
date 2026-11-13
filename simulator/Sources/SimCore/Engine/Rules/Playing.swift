@@ -46,8 +46,9 @@ extension Game {
         if kind == .gear {
             guard let target = equipTo ?? equipTarget(p, gear: id) else { return false }
             guard pay(p, cost) else { return false }
-            players[p].hand.remove(at: handIndex)
+            removeFromHand(p, at: handIndex)
             consumeCostReductions(p, id)
+            if !free { consumePendingDiscounts(p, for: .gear) }
             equip(p, gear: id, to: target)
             note("P\(p) equips \(name(id))")
             let event = GameEvent.played(cardId: id, location: .gear(host: target))
@@ -56,10 +57,11 @@ extension Game {
             return true
         }
         guard pay(p, cost) else { return false }
-        players[p].hand.remove(at: handIndex)
+        removeFromHand(p, at: handIndex)
         consumeCostReductions(p, id)
         switch kind {
         case .unit:
+            if !free { consumePendingDiscounts(p, for: .unit) }
             enterField(p, cardId: id)
         case .program:
             playProgram(p, id, bottomAfter: false)
@@ -80,9 +82,7 @@ extension Game {
 
     mutating func playProgram(_ p: Int, _ id: Int, bottomAfter: Bool) {
         players[p].flags.programsPlayed += 1
-        if !players[p].flags.pendingDiscounts.isEmpty {
-            players[p].flags.pendingDiscounts.removeAll { $0.kind == .program }
-        }
+        consumePendingDiscounts(p, for: .program)
         note("P\(p) plays \(name(id))")
         broadcast(.played(cardId: id, location: .resolving), to: p)
         send(.programResolves, to: id, owner: p, at: .resolving, relation: .itself)
@@ -94,8 +94,9 @@ extension Game {
         guard let handIndex = players[p].hand.firstIndex(of: id) else { return false }
         let cost = effectiveCost(p, id)
         guard pay(p, cost) else { return false }
-        players[p].hand.remove(at: handIndex)
+        removeFromHand(p, at: handIndex)
         players[p].trash.append(id)
+        consumePendingDiscounts(p, for: .program)
         players[p].flags.programsPlayed += 1
         note("P\(p) plays \(name(id))")
         broadcast(.quickActivated(cardId: id), to: p)
@@ -140,6 +141,7 @@ extension Game {
             players[p].legends[slot].spent = legend.spent
             return
         }
+        consumePendingDiscounts(p, for: .legend)
         players[p].legends.remove(at: slot)
         let uid = takeUid()
         var fieldUnit = FieldUnit(uid: uid, cardId: legend.cardId, isLegend: true)
@@ -148,6 +150,11 @@ extension Game {
         players[p].field.append(fieldUnit)
         note("P\(p) goes solo with \(name(legend.cardId))")
         broadcast(.played(cardId: legend.cardId, location: .field(uid: uid)), to: p, subject: .field(uid: uid))
+    }
+
+    mutating func consumePendingDiscounts(_ p: Int, for kind: CardKind) {
+        guard !players[p].flags.pendingDiscounts.isEmpty else { return }
+        players[p].flags.pendingDiscounts.removeAll { $0.kind == kind || ($0.kind == nil && kind != .legend) }
     }
 
     mutating func addPendingDiscount(_ p: Int, source: Int, kind: CardKind?, amount: Int, minimum: Int) {

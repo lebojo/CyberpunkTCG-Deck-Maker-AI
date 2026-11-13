@@ -37,7 +37,7 @@ extension Game {
     }
 
     mutating func sellFromHand(_ p: Int, handIndex: Int) {
-        let sold = players[p].hand.remove(at: handIndex)
+        let sold = removeFromHand(p, at: handIndex)
         players[p].eddiesReady += 1
         players[p].flags.sold = true
         note("P\(p) sells \(name(sold))")

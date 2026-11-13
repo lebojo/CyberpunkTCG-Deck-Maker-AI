@@ -56,8 +56,8 @@ extension Game {
         EffectQuery(game: self, owner: owner, cardId: cardId, location: location, subject: subject, attacking: attacking)
     }
 
-    mutating func withContext<Result>(_ cardId: Int, owner: Int, at location: CardLocation, subject: QuerySubject = .none, _ body: (inout EffectContext) -> Result) -> Result {
-        var context = EffectContext(game: Game(placeholderFor: catalog), owner: owner, cardId: cardId, location: location, relation: .itself, subject: subject)
+    mutating func withContext<Result>(_ cardId: Int, owner: Int, at location: CardLocation, relation: EventRelation = .itself, subject: QuerySubject = .none, delayedPayload: Int = 0, _ body: (inout EffectContext) -> Result) -> Result {
+        var context = EffectContext(game: Game(placeholderFor: catalog), owner: owner, cardId: cardId, location: location, relation: relation, subject: subject, delayedPayload: delayedPayload)
         swap(&self, &context.game)
         let result = body(&context)
         swap(&self, &context.game)

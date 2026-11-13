@@ -9,13 +9,28 @@ struct DexterDeShawnOffTheGrid: GameCard {
 
     func action(_ event: GameEvent, in context: inout EffectContext) {
         guard case .calledAsLegend = event, context.isAboutItself else { return }
-        _ = context.chooseMode(2) { mode, branch in
-            if mode == 0 { pumpBestAlly(&branch) } else { branch.draw(1) }
+        let choice = bestPump(context)
+        let options = [ModeOption(name: "give a friendly Unit +2 power", value: choice.value), ModeOption(name: "draw 1", value: ModeOption.drawOne)]
+        _ = context.chooseMode(options) { mode, branch in
+            if mode == 0 { pump(choice.target ?? branch.bestAllyUnit(), &branch) } else { branch.draw(1) }
         }
     }
 
-    private func pumpBestAlly(_ context: inout EffectContext) {
-        guard let target = context.bestAllyUnit() else { return }
+    private static let extraGigValue = 8.0
+
+    private func bestPump(_ reading: some GameReading) -> (target: FieldUnit?, value: Double) {
+        if let swing = reading.bestFightSwing(allyBonus: 2, rivalMalus: 0) { return (swing.ally, swing.value) }
+        let owner = reading.owner
+        let stealer = reading.field().first { unit in
+            guard reading.canAttack(unit, owner: owner), reading.canStealGigs(unit, owner: owner) else { return false }
+            let power = reading.power(of: unit, owner: owner, attacking: true)
+            return reading.stealCount(forPower: power + 2) > reading.stealCount(forPower: power)
+        }
+        return stealer.map { ($0, Self.extraGigValue) } ?? (nil, 1)
+    }
+
+    private func pump(_ target: FieldUnit?, _ context: inout EffectContext) {
+        guard let target else { return }
         context.addPower(context.owner, uid: target.uid, 2)
     }
 

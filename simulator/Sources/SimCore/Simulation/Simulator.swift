@@ -64,6 +64,7 @@ public struct DuelStats: Sendable {
         case .gigsInOvertime: return "7 Gigs en Overtime"
         case .deckOut: return "pioche vide"
         case .turnLimit: return "limite de tours"
+        case .tieInOvertime: return "égalité en Overtime"
         }
     }
 
@@ -87,7 +88,9 @@ public enum Simulator {
         switch game.outcome {
         case .win(let player, let reason):
             summary = GameSummary(winner: player, reason: reason, turns: game.turn, firstPlayer: first, mulligans: game.players.map { $0.mulliganed })
-        default:
+        case .draw(let reason):
+            summary = GameSummary(winner: nil, reason: reason, turns: game.turn, firstPlayer: first, mulligans: game.players.map { $0.mulliganed })
+        case .ongoing:
             summary = GameSummary(winner: nil, reason: nil, turns: game.turn, firstPlayer: first, mulligans: game.players.map { $0.mulliganed })
         }
         return (summary, game.traceLines)

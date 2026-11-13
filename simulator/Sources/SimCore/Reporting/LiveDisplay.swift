@@ -7,6 +7,8 @@ public final class LiveDisplay: Sendable {
     static let hideCursor = "\u{1B}[?25l"
     static let showCursor = "\u{1B}[?25h"
     public static let descriptor = STDERR_FILENO
+    nonisolated(unsafe) static let restoreCursorBytes: UnsafePointer<CChar> = UnsafePointer(strdup(showCursor + "\n")!)
+    static let restoreCursorLength = strlen(restoreCursorBytes)
 
     private let interactive: Bool
     private let stopSignal = DispatchSemaphore(value: 0)
@@ -97,9 +99,9 @@ public final class LiveDisplay: Sendable {
     }
 
     static func installSignalHandlers() -> SignalHandlers {
+        _ = (restoreCursorBytes, restoreCursorLength)
         let handler: @convention(c) (Int32) -> Void = { signalNumber in
-            let restore = Array("\u{1B}[?25h\n".utf8)
-            _ = restore.withUnsafeBufferPointer { write(STDERR_FILENO, $0.baseAddress, $0.count) }
+            _ = write(STDERR_FILENO, LiveDisplay.restoreCursorBytes, LiveDisplay.restoreCursorLength)
             _exit(128 + signalNumber)
         }
         return SignalHandlers(interrupt: signal(SIGINT, handler), terminate: signal(SIGTERM, handler))

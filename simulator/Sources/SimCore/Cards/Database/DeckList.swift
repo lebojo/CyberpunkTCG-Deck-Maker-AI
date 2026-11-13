@@ -15,6 +15,13 @@ public struct DeckList: Sendable {
 
     public var allCards: [Int] { legends + main }
 
+    public static func validationError(for decks: [DeckList]) -> String? {
+        let invalid = decks.filter { !$0.problems.isEmpty }
+        guard !invalid.isEmpty else { return nil }
+        let details = invalid.map { "  \($0.name) : " + $0.problems.joined(separator: "; ") }
+        return (["Simulation impossible, deck(s) invalide(s) :"] + details + ["Un deck doit avoir exactement 3 Légendes connues et 40 à 50 cartes connues dans son main deck."]).joined(separator: "\n")
+    }
+
     public static func load(path: String, catalog: CardCatalog) throws -> DeckList {
         let text = try String(contentsOfFile: path, encoding: .utf8)
         let fallback = ((path as NSString).lastPathComponent as NSString).deletingPathExtension

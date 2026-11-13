@@ -26,11 +26,10 @@ extension Game {
     mutating func send(_ event: GameEvent, to cardId: Int, owner: Int, at location: CardLocation, relation: EventRelation, delayedPayload: Int = 0, force: Bool = false) -> EventOutcome {
         guard force || catalog.profiles[cardId].listens.contains(event.mask) else { return EventOutcome() }
         let card = catalog.cards[cardId]
-        var context = EffectContext(game: Game(placeholderFor: catalog), owner: owner, cardId: cardId, location: location, relation: relation, delayedPayload: delayedPayload)
-        swap(&self, &context.game)
-        card.action(event, in: &context)
-        swap(&self, &context.game)
-        return context.outcome
+        return withContext(cardId, owner: owner, at: location, relation: relation, delayedPayload: delayedPayload) { context in
+            card.action(event, in: &context)
+            return context.outcome
+        }
     }
 
     @discardableResult

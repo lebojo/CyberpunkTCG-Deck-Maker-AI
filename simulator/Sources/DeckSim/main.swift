@@ -20,8 +20,9 @@ func run() async throws {
         print("")
     }
     let decks = try options.deckPaths.map { try DeckList.load(path: $0, catalog: catalog) }
-    for deck in decks where !deck.problems.isEmpty {
-        print("Attention, \(deck.name) : " + deck.problems.joined(separator: "; "))
+    if let message = DeckList.validationError(for: decks) {
+        FileHandle.standardError.write(Data((message + "\n").utf8))
+        exit(1)
     }
     let missing = CoverageReport.missingCards(in: decks, catalog: catalog)
     if !missing.isEmpty {

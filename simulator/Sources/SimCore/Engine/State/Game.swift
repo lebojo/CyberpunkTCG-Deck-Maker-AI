@@ -10,7 +10,7 @@ public struct Game: Sendable {
     var emptyFixerStreak = 0
     public internal(set) var outcome: Outcome = .ongoing
     var nextUid = 1
-    let log: TraceLog?
+    var log: TraceLog?
     var tracing: Bool
     var skipReadyOnce = SidePair(false, false)
     var policies: SidePair<Policy>
@@ -49,8 +49,7 @@ public struct Game: Sendable {
                 draw(p, 6)
             }
         }
-        players[firstPlayer].legends[0].spent = true
-        players[firstPlayer].legends[1].spent = true
+        for slot in players[firstPlayer].legends.indices.prefix(2) { players[firstPlayer].legends[slot].spent = true }
         skipReadyOnce[firstPlayer] = true
     }
 

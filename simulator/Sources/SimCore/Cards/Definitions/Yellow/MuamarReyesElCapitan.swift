@@ -20,13 +20,26 @@ struct MuamarReyesElCapitan: GameCard {
     }
 
     private func chooseCallEffect(_ context: inout EffectContext) {
-        _ = context.chooseMode(2) { mode, branch in
-            if mode == 0 { protectBestUnit(&branch) } else { branch.draw(1) }
+        let protected = unitAtRisk(context)
+        let value = protected.map { context.unitThreat($0, owner: context.owner) / 2 } ?? 1
+        let options = [ModeOption(name: "protect a friendly Unit in fights", value: value), ModeOption(name: "draw 1", value: ModeOption.drawOne)]
+        _ = context.chooseMode(options) { mode, branch in
+            if mode == 0 { protect(protected ?? branch.bestAllyUnit(), &branch) } else { branch.draw(1) }
         }
     }
 
-    private func protectBestUnit(_ context: inout EffectContext) {
-        guard let unit = context.bestAllyUnit() else { return }
+    private func unitAtRisk(_ reading: some GameReading) -> FieldUnit? {
+        let owner = reading.owner
+        let rival = reading.rival
+        return reading.bestAllyUnit { ally in
+            guard reading.canAttack(ally, owner: owner) else { return false }
+            let attack = reading.power(of: ally, owner: owner, attacking: true)
+            return reading.fightableRivalUnits(for: ally).contains { reading.power(of: $0, owner: rival) >= attack }
+        }
+    }
+
+    private func protect(_ unit: FieldUnit?, _ context: inout EffectContext) {
+        guard let unit else { return }
         context.registerDelayed(.wouldBeDefeated, expiry: .endOfTurn, charges: 1, payload: unit.uid)
     }
 

@@ -15,20 +15,20 @@ public extension EffectContext {
     mutating func discard(_ id: Int, from p: Int? = nil) -> Bool {
         let side = p ?? owner
         guard let index = game.players[side].hand.firstIndex(of: id) else { return false }
-        game.players[side].trash.append(game.players[side].hand.remove(at: index))
+        game.players[side].trash.append(game.removeFromHand(side, at: index))
         return true
     }
 
     mutating func discard(atHandIndex index: Int) {
         guard game.players[owner].hand.indices.contains(index) else { return }
-        game.players[owner].trash.append(game.players[owner].hand.remove(at: index))
+        game.players[owner].trash.append(game.removeFromHand(owner, at: index))
     }
 
     @discardableResult
     mutating func takeFromHand(_ id: Int, of p: Int? = nil) -> Bool {
         let side = p ?? owner
         guard let index = game.players[side].hand.firstIndex(of: id) else { return false }
-        game.players[side].hand.remove(at: index)
+        game.removeFromHand(side, at: index)
         return true
     }
 
@@ -198,6 +198,7 @@ public extension EffectContext {
         case .thisTurn: game.players[p].field[index].bonusPower += amount
         case .thisFight: game.players[p].field[index].fightBonus += amount
         case .untilYourNextTurn:
+            if game.turn >= game.players[p].field[index].lingeringPowerUntil { game.players[p].field[index].lingeringPower = 0 }
             game.players[p].field[index].lingeringPower += amount
             game.players[p].field[index].lingeringPowerUntil = game.turn + 2
         }
@@ -303,11 +304,19 @@ public extension EffectContext {
         var best: (mode: Int, score: Double)?
         for mode in 0..<count {
             var trial = self
+            trial.game.tracing = false
             apply(mode, &trial)
             let score = trial.game.evaluate(decider)
             if score > (best?.score ?? -Double.infinity) { best = (mode, score) }
         }
         let chosen = best?.mode ?? 0
+        apply(chosen, &self)
+        return chosen
+    }
+
+    mutating func chooseMode(_ options: [ModeOption], chooser: Int? = nil, _ apply: (Int, inout EffectContext) -> Void) -> Int {
+        guard let chosen = ModeOption.best(options) else { return 0 }
+        note("P\(chooser ?? owner) chooses \(options[chosen].name)")
         apply(chosen, &self)
         return chosen
     }

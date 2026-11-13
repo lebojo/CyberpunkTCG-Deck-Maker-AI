@@ -9,17 +9,19 @@ struct WakakoOkadaPeaceAndHarmony: GameCard {
 
     func action(_ event: GameEvent, in context: inout EffectContext) {
         guard case .calledAsLegend = event, context.isAboutItself else { return }
-        _ = context.chooseMode(2) { mode, branch in
+        let swing = context.bestFightSwing(allyBonus: 0, rivalMalus: 2)
+        let options = [ModeOption(name: "give a rival Unit -2 power", value: swing?.value ?? 1), ModeOption(name: "draw 1", value: ModeOption.drawOne)]
+        _ = context.chooseMode(options) { mode, branch in
             if mode == 0 {
-                weakenBestRivalUnit(&branch)
+                weaken(swing?.rival ?? branch.bestRivalUnit(), &branch)
             } else {
                 branch.draw(1)
             }
         }
     }
 
-    private func weakenBestRivalUnit(_ context: inout EffectContext) {
-        guard let target = context.bestRivalUnit() else { return }
+    private func weaken(_ target: FieldUnit?, _ context: inout EffectContext) {
+        guard let target else { return }
         context.addPower(context.rival, uid: target.uid, -2)
     }
 
