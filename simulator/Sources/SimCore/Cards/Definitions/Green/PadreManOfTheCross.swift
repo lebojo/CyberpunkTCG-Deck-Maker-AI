@@ -20,30 +20,60 @@ struct PadreManOfTheCross: GameCard {
 
     func abilityOptions(_ ability: ActivatedAbility, in query: EffectQuery) -> [AbilityOption] {
         guard let match = bestMatch(in: query) else { return [] }
-        return [AbilityOption(ability: 0, target: .gig(owner: query.owner, index: match.index))]
+        return [AbilityOption(ability: 0, target: .gig(owner: match.owner, index: match.index))]
     }
 
     func activate(_ option: AbilityOption, in context: inout EffectContext) -> Bool {
         guard let slot = context.selfLegendSlot, !context.legends()[slot].spent, let match = bestMatch(in: context) else { return false }
         context.spendLegend(slot: slot)
-        context.note("P\(context.owner) sets a Gig to \(match.value)")
-        context.setGig(context.owner, index: match.index, to: match.value)
+        context.note("P\(context.owner) sets a Gig of P\(match.owner) to \(match.value)")
+        context.setGig(match.owner, index: match.index, to: match.value)
         return true
     }
 
-    private func bestMatch(in reading: some GameReading) -> (index: Int, value: Int)? {
+    private struct Match {
+        let owner: Int
+        let index: Int
+        let value: Int
+        let gain: Double
+    }
+
+    private static let minimumRivalDamage = 2.0
+
+    private func bestMatch(in reading: some GameReading) -> Match? {
+        let candidates = ownMatches(in: reading) + rivalMatches(in: reading)
+        return candidates.max { $0.gain < $1.gain }
+    }
+
+    private func ownMatches(in reading: some GameReading) -> [Match] {
+        let owner = reading.owner
         let mine = reading.gigs()
-        let values = Set(mine.map(\.value) + reading.gigs(of: reading.rival).map(\.value)).sorted()
+        let values = Set(reading.gigs(of: reading.rival).map(\.value)).sorted()
         let baseline = reading.gigScore(mine)
-        var best: (index: Int, value: Int, score: Double)?
-        for index in mine.indices {
-            for value in values where value != mine[index].value && value <= mine[index].sides {
+        return mine.indices.flatMap { index in
+            values.compactMap { value -> Match? in
+                guard value != mine[index].value, value <= mine[index].sides else { return nil }
                 var trial = mine
                 trial[index].value = value
-                let score = reading.gigScore(trial)
-                if score > baseline, score > (best?.score ?? -Double.infinity) { best = (index, value, score) }
+                let gain = reading.gigScore(trial) - baseline
+                return gain > 0 ? Match(owner: owner, index: index, value: value, gain: gain) : nil
             }
         }
-        return best.map { ($0.index, $0.value) }
+    }
+
+    private func rivalMatches(in reading: some GameReading) -> [Match] {
+        let rival = reading.rival
+        let theirs = reading.gigs(of: rival)
+        let values = Set(reading.gigs().map(\.value)).sorted()
+        let baseline = reading.gigScore(theirs, for: rival)
+        return theirs.indices.flatMap { index in
+            values.compactMap { value -> Match? in
+                guard value != theirs[index].value, value <= theirs[index].sides else { return nil }
+                var trial = theirs
+                trial[index].value = value
+                let damage = baseline - reading.gigScore(trial, for: rival)
+                return damage >= Self.minimumRivalDamage ? Match(owner: rival, index: index, value: value, gain: damage) : nil
+            }
+        }
     }
 }

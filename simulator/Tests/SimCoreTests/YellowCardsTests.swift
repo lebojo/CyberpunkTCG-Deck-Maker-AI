@@ -61,6 +61,27 @@ final class YellowCardsTests: XCTestCase {
         XCTAssertNotNil(game.unit(1, target))
     }
 
+    func testGildedMatonPicksTheValidGearAndTargetPair() {
+        var game = Fixtures.game()
+        let ally = game.place("minotaur", for: 0, gears: ["sandevistan"])
+        let cheap = game.place("ruthless-lowlife", for: 1)
+        let fit = game.place("swordwise-huscle", for: 1)
+        play("gilded-mat-n", in: &game)
+        XCTAssertEqual(game.unit(0, ally)?.gears, [])
+        XCTAssertNil(game.unit(1, fit))
+        XCTAssertNotNil(game.unit(1, cheap))
+    }
+
+    func testGildedMatonPlayValueIgnoresTheTargetBonusWithoutAFriendlyGear() {
+        var game = Fixtures.game()
+        game.place("swordwise-huscle", for: 1)
+        let card = Fixtures.id("gilded-mat-n")
+        let without = game.implementation(card).playValue(in: game.query(card, owner: 0, at: .hand))
+        game.place("minotaur", for: 0, gears: ["mantis-blades"])
+        let with = game.implementation(card).playValue(in: game.query(card, owner: 0, at: .hand))
+        XCTAssertEqual((with ?? 0) - (without ?? 0), 3)
+    }
+
     func testHanakoTakesCardsMatchingGigValuesAndBottomsTheRest() {
         var game = Fixtures.game()
         game.setGigs([(6, 2)], for: 0)
@@ -221,6 +242,13 @@ final class YellowCardsTests: XCTestCase {
         XCTAssertFalse(game.players[0].legends[0].faceUp)
     }
 
+    func testTBugCallsExactlyOneOfTwoFaceDownLegends() {
+        var game = Fixtures.game(legends: [["dum-dum-maelstrom-triggerman", "river-ward-detective-on-the-hunt"], []])
+        let bug = game.place("t-bug-amateur-philosopher", for: 0)
+        game.defeat(0, uid: bug)
+        XCTAssertEqual(game.players[0].legends.filter(\.faceUp).count, 1)
+    }
+
     func testTraumaTeamCostDropsWithUnitsInTrashDownToOne() {
         var game = Fixtures.game()
         let team = Fixtures.id("trauma-team-operatives")
@@ -300,6 +328,21 @@ final class YellowCardsTests: XCTestCase {
         game.performAttack(0, attackerUid: unit, target: .unit(target))
         XCTAssertNil(game.unit(1, target))
         game.endTurn(0)
+        XCTAssertNil(game.unit(0, unit))
+    }
+
+    func testCyberpsychosisTriggersOnADrawnFight() {
+        var game = Fixtures.game()
+        let unit = game.place("minotaur", for: 0, gears: ["mantis-blades", "kiroshi-optics"])
+        let target = game.place("corpo-security", for: 1)
+        game.spendUnit(1, uid: target)
+        activateCyberpsychosis(on: unit, in: &game)
+        let attackPower = game.power(0, game.unit(0, unit)!, attacking: true)
+        let index = game.players[1].field.firstIndex { $0.uid == target }!
+        game.players[1].field[index].bonusPower = attackPower - game.power(1, game.players[1].field[index], attacking: false)
+        game.performAttack(0, attackerUid: unit, target: .unit(target))
+        XCTAssertTrue(game.players[0].flags.delayedTriggers.isEmpty)
+        XCTAssertNil(game.unit(1, target))
         XCTAssertNil(game.unit(0, unit))
     }
 

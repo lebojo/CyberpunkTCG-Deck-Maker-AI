@@ -198,6 +198,46 @@ final class BlueCardsTests: XCTestCase {
         XCTAssertEqual(game.players[0].eddiesReady, 0)
     }
 
+    func testMistyDoesNotRevealAtTheEndOfTheRivalTurn() {
+        var game = Fixtures.game(decks: [Array(repeating: "trust-no-one", count: 6), []])
+        game.place("misty-olszewski-mender-of-broken-spirits", for: 0)
+        game.endTurn(1)
+        XCTAssertEqual(game.players[0].deck.count, 6)
+        XCTAssertTrue(game.players[0].hand.isEmpty)
+    }
+
+    func testDelamainCabDoesNotReadyAnEddieAtTheEndOfTheRivalTurn() {
+        var game = Fixtures.game()
+        let cab = game.place("delamain-cab", for: 0)
+        game.setGigs([(6, 3)], for: 1)
+        game.performAttack(0, attackerUid: cab, target: .gigs)
+        game.players[0].eddiesReady = 0
+        game.players[0].eddiesSpent = 2
+        game.endTurn(1)
+        XCTAssertEqual(game.players[0].eddiesReady, 0)
+    }
+
+    func testJudyLegendIgnoresARivalBraindance() {
+        var game = Fixtures.game(legends: [["judy-lvarez-braindance-maestro"], []])
+        game.faceUp(0, slot: 0)
+        let unit = game.place("swordwise-huscle", for: 0)
+        game.setGigs([(6, 5)], for: 1)
+        playFromHand(&game, "trust-no-one", for: 1)
+        XCTAssertEqual(game.power(0, game.unit(0, unit)!, attacking: false), 3)
+    }
+
+    func testRebootOpticsActivatedFromHandRegistersASingleTrigger() {
+        var game = Fixtures.game()
+        let attacker = game.place("minotaur", for: 0)
+        let defender = game.place("swordwise-huscle", for: 1)
+        game.spendUnit(1, uid: defender)
+        game.give(["reboot-optics"], to: 1)
+        game.players[1].eddiesReady = 2
+        game.performAttack(0, attackerUid: attacker, target: .unit(defender))
+        XCTAssertTrue(game.players[1].flags.delayedTriggers.isEmpty)
+        XCTAssertNotNil(game.unit(1, defender))
+    }
+
     func testModdedMuramasaReadiesWhenBehindOnStreetCred() {
         var game = Fixtures.game()
         let muramasa = game.place("modded-muramasa", for: 0)

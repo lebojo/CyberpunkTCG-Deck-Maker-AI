@@ -18,8 +18,9 @@ struct YorinobuArasakaSteelDragon: GameCard {
     private func playFreeUnit(_ context: inout EffectContext) {
         let fromHand = context.hand().filter { isCandidate($0, context) }.map { (id: $0, fromTrash: false) }
         let fromTrash = context.trash().filter { isCandidate($0, context) }.map { (id: $0, fromTrash: true) }
-        let best = (fromHand + fromTrash).max { value(of: $0, context) < value(of: $1, context) }
-        guard let choice = best, let uid = enter(choice, &context) else { return }
+        let valued = (fromHand + fromTrash).compactMap { choice in value(of: choice, context).map { (choice: choice, value: $0) } }
+        guard let best = valued.max(by: { $0.value < $1.value }), let uid = enter(best.choice, &context) else { return }
+        let choice = best.choice
         context.grantKeyword(.attacksUnitsWhenPlayed, to: context.owner, uid: uid)
         context.note("P\(context.owner) plays \(context.data(choice.id).canonicalName) for free")
     }
@@ -28,8 +29,8 @@ struct YorinobuArasakaSteelDragon: GameCard {
         reading.stats(id).kind == .unit && reading.stats(id).costValue <= Self.maxFreeCost
     }
 
-    private func value(of choice: (id: Int, fromTrash: Bool), _ reading: some GameReading) -> Double {
-        reading.playValue(choice.id, from: choice.fromTrash ? .trash : .hand) ?? 0
+    private func value(of choice: (id: Int, fromTrash: Bool), _ reading: some GameReading) -> Double? {
+        reading.playValue(choice.id, from: choice.fromTrash ? .trash : .hand)
     }
 
     private func enter(_ choice: (id: Int, fromTrash: Bool), _ context: inout EffectContext) -> Int? {
@@ -38,7 +39,7 @@ struct YorinobuArasakaSteelDragon: GameCard {
             return context.putUnitIntoPlay(choice.id)
         }
         guard context.playFromHand(choice.id, free: true) else { return nil }
-        return context.field().last?.uid
+        return context.field().last { $0.cardId == choice.id }?.uid
     }
 
     private func drawForArasakaDefeat(_ report: DefeatedUnit, _ context: inout EffectContext) {

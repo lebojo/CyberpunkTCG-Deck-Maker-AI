@@ -51,6 +51,17 @@ final class GreenCardsTests: XCTestCase {
         XCTAssertTrue(game.players[0].legends[0].spent)
     }
 
+    func testJackieDoesNotPayWhenSheIsTheUnitBeingDefeated() {
+        var game = Fixtures.game()
+        var jackie = FieldUnit(uid: game.takeUid(), cardId: id("jackie-welles-mama-s-favorite"), isLegend: true)
+        jackie.lagging = false
+        game.players[0].field.append(jackie)
+        game.players[0].eddiesReady = 1
+        game.defeat(0, uid: jackie.uid)
+        XCTAssertNil(game.unit(0, jackie.uid))
+        XCTAssertEqual(game.players[0].eddiesReady, 1)
+    }
+
     func testJackieSacrificesHerselfToSaveAFriendlyUnit() {
         var game = Fixtures.game()
         var jackie = FieldUnit(uid: game.takeUid(), cardId: id("jackie-welles-mama-s-favorite"), isLegend: true)
@@ -183,6 +194,18 @@ final class GreenCardsTests: XCTestCase {
         XCTAssertTrue(game.activate(0, use))
         XCTAssertEqual(game.valuePairs(0), 1)
         XCTAssertTrue(game.players[0].legends[0].spent)
+    }
+
+    func testPadreBreaksARivalPairWhenItHelpsMoreThanMatchingOwnGigs() {
+        var game = Fixtures.game(legends: [["padre-man-of-the-cross"], []])
+        game.faceUp(0, slot: 0)
+        game.setGigs([(10, 3)], for: 0)
+        game.setGigs([(10, 7), (10, 7)], for: 1)
+        guard let use = game.abilityUses(0, timing: .beforeAttacks).first else { return XCTFail("no option") }
+        XCTAssertTrue(game.activate(0, use))
+        XCTAssertEqual(game.players[0].gigs.map(\.value), [3])
+        XCTAssertEqual(game.valuePairs(1), 0)
+        XCTAssertTrue(game.players[1].gigs.contains { $0.value == 3 })
     }
 
     func testPanamNomadCavalryMovesAGearAndReadiesTheUnit() {

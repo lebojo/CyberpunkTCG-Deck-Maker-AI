@@ -29,7 +29,7 @@ struct GoroTakemuraVengefulBodyguard: GameCard {
               context.stats(target.cardId).costValue <= Self.maximumCost,
               let slot = context.selfLegendSlot, !context.legends()[slot].spent,
               context.payEddies(1) else { return false }
-        if !context.legends()[slot].spent { context.spendLegend(slot: slot) }
+        context.spendLegend(slot: slot)
         context.grantKeyword(.blocker, to: unitOwner, uid: uid)
         if context.valuePairs() >= 1 { context.addPower(unitOwner, uid: uid, 1) }
         return true

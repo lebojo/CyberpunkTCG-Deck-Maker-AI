@@ -12,6 +12,7 @@ struct TBugAmateurPhilosopher: GameCard {
     private func bestSlotToCall(_ context: EffectContext) -> Int? {
         let legends = context.legends()
         let slots = legends.indices.filter { !legends[$0].faceUp }
+        if slots.count == 1 { return slots.first }
         return slots.max { score(ofCalling: $0, in: context) < score(ofCalling: $1, in: context) }
     }
 

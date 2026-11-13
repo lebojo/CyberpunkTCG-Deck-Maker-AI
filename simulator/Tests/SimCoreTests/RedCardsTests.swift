@@ -187,6 +187,26 @@ final class RedCardsTests: XCTestCase {
         XCTAssertEqual(game.players[0].eddiesReady, 0)
     }
 
+    func testJohnnySilverhandKeepsTheLegendReadyWhenItCannotPay() {
+        var game = Fixtures.game(legends: [["johnny-silverhand-rocking-renegade"], []])
+        game.faceUp(0, slot: 0)
+        let rocker = game.place("kerry-eurodyne-the-last-rockerboy", for: 0, ready: false)
+        let option = AbilityOption(ability: 0, target: .unit(owner: 0, uid: rocker), value: 30, eddieCost: 2)
+        let use = AbilityUse(source: .legend(slot: 0), cardId: id("johnny-silverhand-rocking-renegade"), option: option)
+        game.players[0].eddiesReady = 1
+        XCTAssertFalse(game.activate(0, use))
+        XCTAssertFalse(game.players[0].legends[0].spent)
+        XCTAssertEqual(game.players[0].eddiesReady, 1)
+    }
+
+    func testVRoamerDoesNotDrawAtTheEndOfTheRivalTurn() {
+        var game = Fixtures.game()
+        game.place("v-roamer-of-the-badlands", for: 0)
+        game.setGigs([(10, 9), (10, 8)], for: 0)
+        game.endTurn(1)
+        XCTAssertTrue(game.players[0].hand.isEmpty)
+    }
+
     func testKerryEurodyneDrawsTwoOnlyWithAHighGig() {
         var game = Fixtures.game()
         let kerry = game.place("kerry-eurodyne-the-last-rockerboy", for: 0, ready: false)

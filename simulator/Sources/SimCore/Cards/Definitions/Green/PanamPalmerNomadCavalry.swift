@@ -35,7 +35,7 @@ struct PanamPalmerNomadCavalry: GameCard {
     func activate(_ option: AbilityOption, in context: inout EffectContext) -> Bool {
         guard let slot = context.selfLegendSlot, !context.legends()[slot].spent, let gear = bestGear(on: slot, in: context),
               let unit = bestUnequippedUnit(in: context), context.payEddies(2) else { return false }
-        if !context.legends()[slot].spent { context.spendLegend(slot: slot) }
+        context.spendLegend(slot: slot)
         context.moveGear(gear, from: .legend(slot), to: .unit(unit.uid))
         context.readyUnit(context.owner, uid: unit.uid)
         return true
